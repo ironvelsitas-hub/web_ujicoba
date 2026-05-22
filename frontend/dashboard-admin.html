@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Guru - Ruang Ujian</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">👨‍🏫</div>
+                <div class="logo-text">Dashboard<span>Guru</span></div>
+            </div>
+            <div class="nav-links">
+                <a href="/index.html">Beranda</a>
+                <a href="/pengumuman.html">📢 Pengumuman</a>
+                <a href="/dashboard-admin.html" class="active">Dashboard</a>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Dashboard Guru</h1>
+            <p>Kelola ujian, tugas, pengumuman, dan lihat hasil siswa</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card-dashboard">
+                <div class="stat-icon">📚</div>
+                <div class="stat-info">
+                    <h3 id="totalTugasStat">0</h3>
+                    <p>Total Tugas</p>
+                </div>
+            </div>
+            <div class="stat-card-dashboard">
+                <div class="stat-icon">👨‍🎓</div>
+                <div class="stat-info">
+                    <h3 id="totalSiswaStat">0</h3>
+                    <p>Siswa Aktif</p>
+                </div>
+            </div>
+            <div class="stat-card-dashboard">
+                <div class="stat-icon">📝</div>
+                <div class="stat-info">
+                    <h3 id="totalJawabanStat">0</h3>
+                    <p>Jawaban Masuk</p>
+                </div>
+            </div>
+            <div class="stat-card-dashboard">
+                <div class="stat-icon">📢</div>
+                <div class="stat-info">
+                    <h3 id="totalPengumumanStat">0</h3>
+                    <p>Pengumuman</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="tugas">📤 Upload Tugas</button>
+            <button class="tab-btn" data-tab="daftar-tugas">📋 Daftar Tugas</button>
+            <button class="tab-btn" data-tab="pengumuman">📢 Buat Pengumuman</button>
+            <button class="tab-btn" data-tab="daftar-pengumuman">📋 Daftar Pengumuman</button>
+            <button class="tab-btn" data-tab="hasil">📊 Hasil Ujian</button>
+        </div>
+
+        <!-- Tab Content: Upload Tugas -->
+        <div id="tab-tugas" class="tab-content active">
+            <div class="card form-card">
+                <h2>📤 Upload Tugas Baru</h2>
+                
+                <!-- Template Soal -->
+                <div class="template-section">
+                    <h3>📋 Template Soal Cepat</h3>
+                    <div class="template-buttons">
+                        <button type="button" class="template-btn" onclick="loadTemplate('matematika')">📐 Matematika</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('ipa')">🔬 IPA</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('bahasa')">📖 Bahasa Indonesia</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('inggris')">🇬🇧 Bahasa Inggris</button>
+                    </div>
+                </div>
+
+                <form id="tugasForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Judul Tugas</label>
+                            <input type="text" id="judul" required placeholder="Contoh: Ujian Matematika Bab 1">
+                        </div>
+                        <div class="form-group">
+                            <label>Mata Pelajaran</label>
+                            <input type="text" id="mapel" required placeholder="Contoh: Matematika">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Guru / Pengajar</label>
+                        <input type="text" id="namaGuru" required placeholder="Contoh: Bapak/Ibu [Nama Guru]">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi Tugas</label>
+                        <textarea id="deskripsi" rows="2" required placeholder="Jelaskan tentang tugas ini..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Waktu (Menit)</label>
+                            <input type="number" id="waktu" required placeholder="60">
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Soal</label>
+                            <input type="number" id="jumlahSoal" required placeholder="10" readonly>
+                        </div>
+                    </div>
+                    
+                    <!-- Soal Editor -->
+                    <div class="form-group">
+                        <label>Soal-soal</label>
+                        <div class="soal-editor-tools">
+                            <button type="button" class="tool-btn" onclick="addSoal()">➕ Tambah Soal</button>
+                            <button type="button" class="tool-btn" onclick="validateSoal()">✅ Validasi Format</button>
+                            <button type="button" class="tool-btn" onclick="previewSoal()">👁️ Preview Soal</button>
+                            <button type="button" class="tool-btn" onclick="clearSoal()">🗑️ Clear All</button>
+                        </div>
+                        <div id="soalEditorContainer"></div>
+                        <textarea id="soal" style="display:none;"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Upload Tugas →</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab Content: Daftar Tugas -->
+        <div id="tab-daftar-tugas" class="tab-content">
+            <div class="card">
+                <h2>📋 Daftar Tugas</h2>
+                <div class="tugas-list" id="tugasList"></div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Buat Pengumuman -->
+        <div id="tab-pengumuman" class="tab-content">
+            <div class="card form-card">
+                <h2>📢 Buat Pengumuman Baru</h2>
+                <form id="pengumumanForm">
+                    <div class="form-group">
+                        <label>Judul Pengumuman</label>
+                        <input type="text" id="judulPengumuman" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioritas</label>
+                        <select id="prioritasPengumuman" required>
+                            <option value="umum">🟢 Umum</option>
+                            <option value="sedang">🟡 Sedang</option>
+                            <option value="penting">🔴 Penting</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Isi Pengumuman</label>
+                        <textarea id="isiPengumuman" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Lampiran URL (Opsional)</label>
+                        <input type="url" id="lampiranPengumuman" placeholder="https://example.com/file.pdf">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Lampiran</label>
+                        <input type="text" id="lampiranNama" placeholder="Contoh: Materi Belajar.pdf">
+                    </div>
+                    <button type="submit" class="btn-primary">📢 Publikasikan Pengumuman</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab Content: Daftar Pengumuman -->
+        <div id="tab-daftar-pengumuman" class="tab-content">
+            <div class="card">
+                <h2>📋 Daftar Pengumuman</h2>
+                <div class="pengumuman-list" id="pengumumanList"></div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Hasil Ujian -->
+        <div id="tab-hasil" class="tab-content">
+            <div class="card">
+                <h2>📊 Hasil Ujian Siswa</h2>
+                <div class="filter-group">
+                    <select id="filterTugas" class="filter-select">
+                        <option value="">Pilih Tugas</option>
+                    </select>
+                </div>
+                <div class="jawaban-list" id="jawabanList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Preview Soal -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content modal-preview">
+            <div class="modal-header">
+                <h3>👁️ Preview Soal</h3>
+                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="previewBody"></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePreviewModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Tugas -->
+    <div class="modal" id="editTugasModal">
+        <div class="modal-content modal-edit">
+            <div class="modal-header">
+                <h3>✏️ Edit Tugas</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="editBody"></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
+                <button class="btn-primary" onclick="saveEditTugas()">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/dashboard-admin.js"></script>
+</body>
+</html>

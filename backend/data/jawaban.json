@@ -12,5 +12,338 @@
     "benar": 1,
     "total": 1,
     "waktuSubmit": "2026-05-21T15:57:37.973Z"
+  },
+  {
+    "id": 1779381618050,
+    "tugasId": 1779381380584,
+    "nama": "felmi",
+    "nis": "123456",
+    "kelas": "X IPA 1",
+    "jawaban": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "nilai": 0,
+    "benar": 0,
+    "total": 6,
+    "waktuSubmit": "2026-05-21T16:40:18.050Z"
+  },
+  {
+    "id": 1779381846173,
+    "tugasId": 1779381765038,
+    "nama": "felmi",
+    "nis": "123456",
+    "kelas": "X IPA 1",
+    "jawaban": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "nilai": 0,
+    "benar": 0,
+    "total": 4,
+    "waktuSubmit": "2026-05-21T16:44:06.173Z"
+  },
+  {
+    "id": 1779381946355,
+    "tugasId": 1779381889473,
+    "nama": "iron",
+    "nis": "1131313",
+    "kelas": "X IPA 2",
+    "jawaban": [
+      "A",
+      "D",
+      "C"
+    ],
+    "nilai": 33,
+    "benar": 1,
+    "total": 3,
+    "waktuSubmit": "2026-05-21T16:45:46.355Z"
+  },
+  {
+    "id": 1779382325245,
+    "tugasId": 1779381889473,
+    "nama": "felmi",
+    "nis": "123456",
+    "kelas": "X IPA 1",
+    "jawaban": [
+      "A",
+      "A",
+      "A"
+    ],
+    "nilai": 100,
+    "benar": 3,
+    "total": 3,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "Apa ibu kota Indonesia?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      },
+      {
+        "nomor": 2,
+        "soal": "Siapa presiden pertama Indonesia?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      },
+      {
+        "nomor": 3,
+        "soal": "Bahasa pemrograman apa yang digunakan untuk membuat website interaktif?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      }
+    ],
+    "waktuSubmit": "2026-05-21T16:52:05.245Z"
+  },
+  {
+    "id": 1779384472930,
+    "tugasId": 1779381889473,
+    "nama": "adel",
+    "nis": "214563",
+    "kelas": "XI IPA 2",
+    "jawaban": [
+      "C",
+      "A",
+      "A"
+    ],
+    "nilai": 67,
+    "benar": 2,
+    "total": 3,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "Apa ibu kota Indonesia?",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 2,
+        "soal": "Siapa presiden pertama Indonesia?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      },
+      {
+        "nomor": 3,
+        "soal": "Bahasa pemrograman apa yang digunakan untuk membuat website interaktif?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      }
+    ],
+    "waktuSubmit": "2026-05-21T17:27:52.930Z"
+  },
+  {
+    "id": 1779386041046,
+    "tugasId": 1779385957381,
+    "nama": "ASER",
+    "nis": "654875",
+    "kelas": "XII IPA 2",
+    "jawaban": [
+      "A",
+      "A"
+    ],
+    "nilai": 100,
+    "benar": 2,
+    "total": 2,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "hasil dari 40 + 40 ?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      },
+      {
+        "nomor": 2,
+        "soal": "hasil dari 40 - 40 ?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      }
+    ],
+    "waktuSubmit": "2026-05-21T17:54:01.046Z"
+  },
+  {
+    "id": 1779386078124,
+    "tugasId": 1779385957381,
+    "nama": "ASER",
+    "nis": "654875",
+    "kelas": "XII IPA 2",
+    "jawaban": [
+      "B",
+      "C"
+    ],
+    "nilai": 0,
+    "benar": 0,
+    "total": 2,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "hasil dari 40 + 40 ?",
+        "jawabanSiswa": "B",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 2,
+        "soal": "hasil dari 40 - 40 ?",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      }
+    ],
+    "waktuSubmit": "2026-05-21T17:54:38.124Z"
+  },
+  {
+    "id": 1779386088051,
+    "tugasId": 1779385957381,
+    "nama": "ASER",
+    "nis": "654875",
+    "kelas": "XII IPA 2",
+    "jawaban": [
+      "A",
+      "C"
+    ],
+    "nilai": 50,
+    "benar": 1,
+    "total": 2,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "hasil dari 40 + 40 ?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      },
+      {
+        "nomor": 2,
+        "soal": "hasil dari 40 - 40 ?",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      }
+    ],
+    "waktuSubmit": "2026-05-21T17:54:48.051Z"
+  },
+  {
+    "id": 1779389249332,
+    "tugasId": 1779389113181,
+    "nama": "andre",
+    "nis": "6548976",
+    "kelas": "XI IPA 2",
+    "jawaban": [
+      "C",
+      "B",
+      "A",
+      "C",
+      "B"
+    ],
+    "nilai": 20,
+    "benar": 1,
+    "total": 5,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "Hasil dari 2 + 2 adalah...",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 2,
+        "soal": "Akar kuadrat dari 144 adalah...",
+        "jawabanSiswa": "B",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 3,
+        "soal": "Berapa hasil dari 15 × 4?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      },
+      {
+        "nomor": 4,
+        "soal": "Bilangan prima berikut ini adalah...",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 5,
+        "soal": "Hasil dari 100 ÷ 5 adalah...",
+        "jawabanSiswa": "B",
+        "jawabanBenar": "A",
+        "status": false
+      }
+    ],
+    "waktuSubmit": "2026-05-21T18:47:29.332Z"
+  },
+  {
+    "id": 1779426526074,
+    "tugasId": 1779389113181,
+    "nama": "vaya",
+    "nis": "4659874",
+    "kelas": "XII IPA 1",
+    "jawaban": [
+      "B",
+      "C",
+      "C",
+      "C",
+      "B"
+    ],
+    "nilai": 0,
+    "benar": 0,
+    "total": 5,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "Hasil dari 2 + 2 adalah...",
+        "jawabanSiswa": "B",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 2,
+        "soal": "Akar kuadrat dari 144 adalah...",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 3,
+        "soal": "Berapa hasil dari 15 × 4?",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 4,
+        "soal": "Bilangan prima berikut ini adalah...",
+        "jawabanSiswa": "C",
+        "jawabanBenar": "A",
+        "status": false
+      },
+      {
+        "nomor": 5,
+        "soal": "Hasil dari 100 ÷ 5 adalah...",
+        "jawabanSiswa": "B",
+        "jawabanBenar": "A",
+        "status": false
+      }
+    ],
+    "waktuSubmit": "2026-05-22T05:08:46.074Z"
   }
 ]

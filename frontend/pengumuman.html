@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengumuman - Ruang Ujian</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">📢</div>
+                <div class="logo-text">Ruang<span>Ujian</span></div>
+            </div>
+            <div class="nav-links">
+                <a href="/index.html">Beranda</a>
+                <a href="/pengumuman.html" class="active">Pengumuman</a>
+                <a href="/dashboard.html">Dashboard Guru</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pengumuman-container">
+        <div class="pengumuman-header">
+            <h1>📢 Pengumuman & Informasi</h1>
+            <p>Informasi terbaru dari guru dan sekolah</p>
+        </div>
+
+        <div class="pengumuman-grid" id="pengumumanGrid">
+            <div class="loading-spinner">Memuat pengumuman...</div>
+        </div>
+    </div>
+
+    <script src="/js/pengumuman.js"></script>
+</body>
+</html>

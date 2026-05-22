@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1779384244013,
+    "judul": "UJIAN AKHIR",
+    "prioritas": "umum",
+    "isi": "tgl 2 agustus 2026",
+    "lampiran": "http://localhost:3000/dashboard-admin.html",
+    "lampiran_nama": "-",
+    "author": "admin",
+    "tanggal": "2026-05-21T17:24:04.013Z",
+    "status": "active"
+  },
+  {
+    "id": 1779387621911,
+    "judul": "UJIAN MID SEMESTER 1",
+    "prioritas": "umum",
+    "isi": "akan berlangsung pada tanggal 10 juli 2026. dengan persyaratan siswa/siswa lunas uang sekolah, jika belum lunas maka mohon maaf siswa/siswi tersebut tidak di izinkan untuk mengikuti ujian MID SEMESTER 1. untuk lebih detailnya silahkan kunjungi lampiran kami.terimakasih",
+    "lampiran": "https://share.google/oGHnoYtOtTffIDda4",
+    "lampiran_nama": "pesyratan ujian",
+    "author": "admin",
+    "tanggal": "2026-05-21T18:20:21.912Z",
+    "status": "active"
+  }
+]

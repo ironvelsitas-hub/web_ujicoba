@@ -1,14 +1,125 @@
 [
   {
-    "id": 1779379016736,
-    "judul": "tugas 1",
+    "id": 1779381380584,
+    "judul": "tugas 2",
     "mapel": "web",
-    "deskripsi": "-",
-    "waktu": 15,
-    "jumlahSoal": 1,
+    "deskripsi": "tugas 2 ya",
+    "waktu": 20,
+    "jumlahSoal": 6,
     "soal": [
-      "1.  webside adalah?"
+      "1.\n \nCSS merupakan kepanjangan dari....a.\n \nCascading Style Sheet b.\n \nCascading Sensitive Sheetc.\n \nCascading select Sheetd.\n \nCase Style Sheete.\n \nCode Style Sheet2.\n \nMacam-macam pembuatan dan pengaturan dalam CSS, kecuali ...a.\n \nStyle font b.\n \nStyle warnac.\n \nStyle jenisd.\n \nStyle bentuke.\n \nStyle jarak3.\n \nDibawah ini manfaat penggunaan dari CSS dalam pembuatan web, kecuali ...a.\n \nKode HTML menjadi lebih sederhana b.\n \nDapat berkolaborasi dengan javascriptc.\n \nMudah untuk mengubah tampiland.\n \nKapasitas penyimpanan menjadi lebih besar, sehingga load lebih mudahe.\n \nDapat digunakan semua jenis web browser4.\n \nSelector yaitu ...a.\n \nBagian elemen HTML untuk mengatur style b.\n \nAturan dalam CSS untuk mengubah value yang dipilihc.\n \nSebuah property yang berada didalam tanda { }d.\n \nMerupakan nilai dari property CSSe.\n \nDapat berupa class dan value5.\n \nJika ada kode html sebagai berikut :\nform {margin-left:0;}\nMaka maksud dari kode html diatas adalah ...a.\n \nPenggunaan selector dan value dengan nilai poperty margin left 0 b.\n \nSelector yang diatur oleh style dengan jarak fieldset batas kiri 0c.\n \nForm selector yang akan mengatur style dengan nilai dari property margin-left 0d.\n \nPenggunaan selector, property, dan valuee.\n \nP\nroperty yang digunakan untuk jarak fieldset dari batas kiri layout\n6.\n \nYang mendefinisian tag dalam CSS adalah ...a.\n \n<style>\n  b.\n \n<html>\n c.\n \n<head>\n d.\n \n<title>\n e.\n \n<DOCTYPE HTML>\n "
     ],
-    "tanggal": "2026-05-21T15:56:56.736Z"
+    "tanggal": "2026-05-21T16:36:20.584Z"
+  },
+  {
+    "id": 1779381765038,
+    "judul": "tugas 3",
+    "mapel": "web",
+    "deskripsi": "tugas deadline tgl 1 juni",
+    "waktu": 15,
+    "jumlahSoal": 4,
+    "soal": [
+      "1. web adalah?\na. 1\nb. 2\nc. 3\nd.4",
+      "2. web adalah?\na. 1\nb. 2\nc. 3\nd.4",
+      "3. web adalah?\na. 1\nb. 2\nc. 3\nd.4\n4. web adalah?\na. 1\nb. 2\nc. 3\nd.4"
+    ],
+    "tanggal": "2026-05-21T16:42:45.038Z"
+  },
+  {
+    "id": 1779381889473,
+    "judul": "tugas 4",
+    "mapel": "web",
+    "deskripsi": ".",
+    "waktu": 15,
+    "jumlahSoal": 3,
+    "soal": [
+      "1. Apa ibu kota Indonesia?\nA. Jakarta\nB. Surabaya\nC. Bandung\nD. Medan",
+      "2. Siapa presiden pertama Indonesia?\nA. Soeharto\nB. Soekarno\nC. Habibie\nD. Gus Dur",
+      "3. Bahasa pemrograman apa yang digunakan untuk membuat website interaktif?\nA. Python\nB. Java\nC. JavaScript\nD. C++"
+    ],
+    "tanggal": "2026-05-21T16:44:49.474Z"
+  },
+  {
+    "id": 1779385957381,
+    "judul": "tugas 5",
+    "mapel": "matek",
+    "namaGuru": "moh.jokowi",
+    "deskripsi": "variabel",
+    "waktu": 5,
+    "jumlahSoal": 2,
+    "soal": [
+      "1. hasil dari 40 + 40 ?\nA. 80\nB.70\nC.85\nD.89",
+      "1. hasil dari 40 - 40 ?\nA. 80\nB. 0\nC.85\nD.89"
+    ],
+    "tanggal": "2026-05-21T17:52:37.381Z"
+  },
+  {
+    "id": 1779389113181,
+    "judul": "kuis 1",
+    "mapel": "matematika",
+    "namaGuru": "moh.hatta",
+    "deskripsi": "sangat gampanggggg",
+    "waktu": 60,
+    "jumlahSoal": 5,
+    "soal": [
+      "Hasil dari 2 + 2 adalah...\nA. 3\nB. 4\nC. 5\nD. 6",
+      "Akar kuadrat dari 144 adalah...\nA. 10\nB. 11\nC. 12\nD. 13",
+      "Berapa hasil dari 15 × 4?\nA. 50\nB. 60\nC. 70\nD. 80",
+      "Bilangan prima berikut ini adalah...\nA. 4\nB. 6\nC. 7\nD. 9",
+      "Hasil dari 100 ÷ 5 adalah...\nA. 15\nB. 20\nC. 25\nD. 30"
+    ],
+    "soalDetail": [
+      {
+        "nomor": 1,
+        "pertanyaan": "Hasil dari 2 + 2 adalah...",
+        "options": [
+          "3",
+          "4",
+          "5",
+          "6"
+        ]
+      },
+      {
+        "nomor": 2,
+        "pertanyaan": "Akar kuadrat dari 144 adalah...",
+        "options": [
+          "10",
+          "11",
+          "12",
+          "13"
+        ]
+      },
+      {
+        "nomor": 3,
+        "pertanyaan": "Berapa hasil dari 15 × 4?",
+        "options": [
+          "50",
+          "60",
+          "70",
+          "80"
+        ]
+      },
+      {
+        "nomor": 4,
+        "pertanyaan": "Bilangan prima berikut ini adalah...",
+        "options": [
+          "4",
+          "6",
+          "7",
+          "9"
+        ]
+      },
+      {
+        "nomor": 5,
+        "pertanyaan": "Hasil dari 100 ÷ 5 adalah...",
+        "options": [
+          "15",
+          "20",
+          "25",
+          "30"
+        ]
+      }
+    ],
+    "tanggal": "2026-05-21T18:45:13.181Z"
   }
 ]
