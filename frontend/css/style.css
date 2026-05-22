@@ -1791,3 +1791,148 @@ body {
     max-height: 80vh;
     overflow-y: auto;
 }
+
+
+/* Jawaban Benar Container */
+.jawaban-benar-container {
+    background: #f0f4ff;
+    padding: 0.75rem;
+    border-radius: 10px;
+    margin: 0.75rem 0;
+    border-left: 4px solid #4caf50;
+}
+
+.jawaban-benar-label {
+    font-weight: 600;
+    color: #333;
+    margin-right: 1rem;
+    font-size: 0.85rem;
+}
+
+.jawaban-benar-options {
+    display: inline-flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.jawaban-benar-option {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+    transition: all 0.3s;
+}
+
+.jawaban-benar-option input {
+    display: none;
+}
+
+.jawaban-benar-option .option-letter-badge {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    border-radius: 50%;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.jawaban-benar-option.selected .option-letter-badge {
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    color: white;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+}
+
+.jawaban-benar-option:hover .option-letter-badge {
+    transform: scale(1.1);
+}
+
+/* Option Row dengan highlight jawaban benar */
+.option-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.option-row.correct-option {
+    background: #e8f5e9;
+    border-left: 3px solid #4caf50;
+}
+
+.correct-badge {
+    background: #4caf50;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.btn-remove-option {
+    background: none;
+    border: none;
+    color: #f44336;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.btn-remove-option:hover {
+    background: #ffebee;
+    transform: scale(1.1);
+}
+
+.btn-add-option-small {
+    background: #667eea;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-add-option-small:hover {
+    background: #764ba2;
+    transform: scale(1.1);
+}
+
+/* Preview dengan highlight jawaban benar */
+.preview-option.preview-correct {
+    background: #e8f5e9;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border-left: 3px solid #4caf50;
+}
+
+.preview-correct-badge {
+    background: #4caf50;
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+}
+
+.preview-answer-key {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed #ddd;
+    font-size: 0.85rem;
+    color: #4caf50;
+}

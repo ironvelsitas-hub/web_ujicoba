@@ -118,9 +118,12 @@
                         </div>
                     </div>
                     
-                    <!-- Soal Editor -->
+                    <!-- Soal Editor dengan Jawaban Benar -->
                     <div class="form-group">
-                        <label>Soal-soal</label>
+                        <label>📝 Soal-soal</label>
+                        <div class="info-banner">
+                            💡 <strong>Tips:</strong> Pilih jawaban benar dengan mengklik huruf (A, B, C, D) di bagian "Jawaban Benar"
+                        </div>
                         <div class="soal-editor-tools">
                             <button type="button" class="tool-btn" onclick="addSoal()">➕ Tambah Soal</button>
                             <button type="button" class="tool-btn" onclick="validateSoal()">✅ Validasi Format</button>
@@ -210,21 +213,6 @@
             <div class="modal-body" id="previewBody"></div>
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closePreviewModal()">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Edit Tugas -->
-    <div class="modal" id="editTugasModal">
-        <div class="modal-content modal-edit">
-            <div class="modal-header">
-                <h3>✏️ Edit Tugas</h3>
-                <button class="modal-close" onclick="closeEditModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="editBody"></div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
-                <button class="btn-primary" onclick="saveEditTugas()">Simpan Perubahan</button>
             </div>
         </div>
     </div>

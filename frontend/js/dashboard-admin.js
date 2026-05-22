@@ -79,7 +79,6 @@ async function loadTugasList() {
                     <small>📅 ${new Date(t.tanggal).toLocaleDateString('id-ID')}</small>
                 </div>
                 <div class="tugas-actions">
-                    <button class="edit-btn" onclick="editTugas(${t.id})">✏️ Edit</button>
                     <button class="delete-btn" onclick="deleteTugas(${t.id})">Hapus</button>
                 </div>
             </div>
@@ -264,7 +263,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ==================== FITUR SOAL BARU ====================
+// ==================== FITUR SOAL BARU DENGAN JAWABAN BENAR ====================
 
 let soalItems = [];
 
@@ -278,14 +277,15 @@ function initSoalEditor(jumlahSoal = 1) {
         soalItems.push({
             nomor: i + 1,
             pertanyaan: '',
-            options: ['', '', '', '']
+            options: ['', '', '', ''],
+            jawabanBenar: 'A'
         });
     }
     renderSoalEditor();
     document.getElementById('jumlahSoal').value = jumlahSoal;
 }
 
-// Render editor soal
+// Render editor soal dengan pilihan jawaban benar
 function renderSoalEditor() {
     const container = document.getElementById('soalEditorContainer');
     if (!container) return;
@@ -303,14 +303,42 @@ function renderSoalEditor() {
             </div>
             <input type="text" class="soal-question-input" placeholder="Masukkan pertanyaan soal..." 
                    value="${escapeHtml(soal.pertanyaan)}" onchange="updateSoal(${idx}, 'pertanyaan', this.value)">
+            
+            <!-- Pilihan Jawaban Benar -->
+            <div class="jawaban-benar-container">
+                <label class="jawaban-benar-label">✅ Jawaban Benar:</label>
+                <div class="jawaban-benar-options">
+                    ${soal.options.map((opt, optIdx) => {
+                        const letter = String.fromCharCode(65 + optIdx);
+                        return `
+                            <label class="jawaban-benar-option ${soal.jawabanBenar === letter ? 'selected' : ''}">
+                                <input type="radio" name="jawabanBenar_${idx}" value="${letter}"
+                                    ${soal.jawabanBenar === letter ? 'checked' : ''}
+                                    onchange="setJawabanBenar(${idx}, '${letter}')">
+                                <span class="option-letter-badge">${letter}</span>
+                            </label>
+                        `;
+                    }).join('')}
+                    ${soal.options.length < 6 ? `
+                        <button type="button" class="btn-add-option-small" onclick="addOption(${idx})">+</button>
+                    ` : ''}
+                </div>
+            </div>
+            
             <div class="options-container">
-                ${soal.options.map((opt, optIdx) => `
-                    <div class="option-row">
-                        <span class="option-letter">${String.fromCharCode(65 + optIdx)}.</span>
-                        <input type="text" class="option-input" placeholder="Jawaban ${String.fromCharCode(65 + optIdx)}" 
-                               value="${escapeHtml(opt)}" onchange="updateSoalOption(${idx}, ${optIdx}, this.value)">
-                    </div>
-                `).join('')}
+                ${soal.options.map((opt, optIdx) => {
+                    const letter = String.fromCharCode(65 + optIdx);
+                    const isCorrect = soal.jawabanBenar === letter;
+                    return `
+                        <div class="option-row ${isCorrect ? 'correct-option' : ''}">
+                            <span class="option-letter">${letter}.</span>
+                            <input type="text" class="option-input" placeholder="Jawaban ${letter}" 
+                                   value="${escapeHtml(opt)}" onchange="updateSoalOption(${idx}, ${optIdx}, this.value)">
+                            ${isCorrect ? '<span class="correct-badge">✓ Benar</span>' : ''}
+                            <button type="button" class="btn-remove-option" onclick="removeOption(${idx}, ${optIdx})" title="Hapus opsi">✗</button>
+                        </div>
+                    `;
+                }).join('')}
                 <button type="button" class="btn-add-option" onclick="addOption(${idx})">+ Tambah Opsi</button>
             </div>
         </div>
@@ -341,11 +369,36 @@ function updateSoalOption(soalIndex, optionIndex, value) {
     }
 }
 
-// Tambah option
+// Set jawaban benar untuk suatu soal
+function setJawabanBenar(soalIndex, jawaban) {
+    if (soalItems[soalIndex]) {
+        soalItems[soalIndex].jawabanBenar = jawaban;
+        renderSoalEditor();
+    }
+}
+
+// Tambah option baru
 function addOption(soalIndex) {
     if (soalItems[soalIndex]) {
         soalItems[soalIndex].options.push('');
         renderSoalEditor();
+    }
+}
+
+// Hapus option
+function removeOption(soalIndex, optionIndex) {
+    if (soalItems[soalIndex] && soalItems[soalIndex].options.length > 2) {
+        soalItems[soalIndex].options.splice(optionIndex, 1);
+        
+        const currentCorrect = soalItems[soalIndex].jawabanBenar;
+        const letterIndex = currentCorrect.charCodeAt(0) - 65;
+        if (letterIndex === optionIndex || letterIndex >= soalItems[soalIndex].options.length) {
+            soalItems[soalIndex].jawabanBenar = 'A';
+        }
+        
+        renderSoalEditor();
+    } else {
+        alert('Minimal 2 pilihan jawaban!');
     }
 }
 
@@ -354,7 +407,8 @@ function addSoal() {
     soalItems.push({
         nomor: soalItems.length + 1,
         pertanyaan: '',
-        options: ['', '', '', '']
+        options: ['', '', '', ''],
+        jawabanBenar: 'A'
     });
     renderSoalEditor();
 }
@@ -363,7 +417,6 @@ function addSoal() {
 function deleteSoal(index) {
     if (confirm('Hapus soal ini?')) {
         soalItems.splice(index, 1);
-        // Renumber soal
         soalItems.forEach((soal, i) => soal.nomor = i + 1);
         renderSoalEditor();
     }
@@ -381,7 +434,6 @@ function copySoal(index) {
 function moveSoalUp(index) {
     if (index > 0) {
         [soalItems[index - 1], soalItems[index]] = [soalItems[index], soalItems[index - 1]];
-        // Renumber
         soalItems.forEach((soal, i) => soal.nomor = i + 1);
         renderSoalEditor();
     }
@@ -403,7 +455,7 @@ function clearSoal() {
     }
 }
 
-// Validasi format soal
+// Validasi format soal (termasuk jawaban benar)
 function validateSoal() {
     let errors = [];
     
@@ -415,6 +467,11 @@ function validateSoal() {
         if (validOptions.length < 2) {
             errors.push(`Soal ${idx + 1}: Minimal 2 pilihan jawaban`);
         }
+        
+        const jawabanBenarIndex = soal.jawabanBenar.charCodeAt(0) - 65;
+        if (!soal.options[jawabanBenarIndex] || !soal.options[jawabanBenarIndex].trim()) {
+            errors.push(`Soal ${idx + 1}: Jawaban benar "${soal.jawabanBenar}" tidak memiliki teks`);
+        }
     });
     
     if (errors.length > 0) {
@@ -422,15 +479,13 @@ function validateSoal() {
         return false;
     }
     
-    alert('✅ Format soal valid!');
+    alert('✅ Format soal valid! (Semua soal memiliki jawaban benar)');
     return true;
 }
 
-// Preview soal
+// Preview soal (menampilkan jawaban benar dengan highlight)
 function previewSoal() {
     const modal = document.getElementById('previewModal');
-    if (!modal) return;
-    
     const body = document.getElementById('previewBody');
     
     let html = '<div class="preview-container">';
@@ -439,11 +494,20 @@ function previewSoal() {
             <div class="preview-soal-item">
                 <div class="preview-soal-text"><strong>${idx + 1}.</strong> ${escapeHtml(soal.pertanyaan || '(Kosong)')}</div>
                 <div class="preview-options">
-                    ${soal.options.filter(opt => opt.trim()).map((opt, optIdx) => `
-                        <div class="preview-option">
-                            ${String.fromCharCode(65 + optIdx)}. ${escapeHtml(opt)}
-                        </div>
-                    `).join('')}
+                    ${soal.options.filter(opt => opt.trim()).map((opt, optIdx) => {
+                        const letter = String.fromCharCode(65 + optIdx);
+                        const isCorrect = soal.jawabanBenar === letter;
+                        return `
+                            <div class="preview-option ${isCorrect ? 'preview-correct' : ''}">
+                                <span class="preview-option-letter">${letter}.</span>
+                                <span class="preview-option-text">${escapeHtml(opt)}</span>
+                                ${isCorrect ? '<span class="preview-correct-badge">✓ Jawaban Benar</span>' : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="preview-answer-key">
+                    🔑 <strong>Kunci Jawaban:</strong> ${soal.jawabanBenar}
                 </div>
             </div>
         `;
@@ -459,43 +523,45 @@ function closePreviewModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// Konversi soalItems ke format text untuk disimpan
+// Konversi soalItems ke format text untuk disimpan (dengan jawaban benar)
 function convertSoalToText() {
     return soalItems.map(soal => {
         let text = `${soal.pertanyaan}`;
         soal.options.forEach((opt, idx) => {
             if (opt.trim()) {
-                text += `\n${String.fromCharCode(65 + idx)}. ${opt}`;
+                const letter = String.fromCharCode(65 + idx);
+                text += `\n${letter}. ${opt}`;
             }
         });
+        text += `\n[JAWABAN: ${soal.jawabanBenar}]`;
         return text;
     }).join('\n\n');
 }
 
-// Load template soal
+// Load template soal (dengan jawaban benar preset)
 function loadTemplate(template) {
     const templates = {
         matematika: [
-            { pertanyaan: "Hasil dari 2 + 2 adalah...", options: ["3", "4", "5", "6"] },
-            { pertanyaan: "Akar kuadrat dari 144 adalah...", options: ["10", "11", "12", "13"] },
-            { pertanyaan: "Berapa hasil dari 15 × 4?", options: ["50", "60", "70", "80"] },
-            { pertanyaan: "Bilangan prima berikut ini adalah...", options: ["4", "6", "7", "9"] },
-            { pertanyaan: "Hasil dari 100 ÷ 5 adalah...", options: ["15", "20", "25", "30"] }
+            { pertanyaan: "Hasil dari 2 + 2 adalah...", options: ["3", "4", "5", "6"], jawabanBenar: "B" },
+            { pertanyaan: "Akar kuadrat dari 144 adalah...", options: ["10", "11", "12", "13"], jawabanBenar: "C" },
+            { pertanyaan: "Berapa hasil dari 15 × 4?", options: ["50", "60", "70", "80"], jawabanBenar: "B" },
+            { pertanyaan: "Bilangan prima berikut ini adalah...", options: ["4", "6", "7", "9"], jawabanBenar: "C" },
+            { pertanyaan: "Hasil dari 100 ÷ 5 adalah...", options: ["15", "20", "25", "30"], jawabanBenar: "B" }
         ],
         ipa: [
-            { pertanyaan: "Organ pernapasan manusia adalah...", options: ["Jantung", "Paru-paru", "Lambung", "Hati"] },
-            { pertanyaan: "Planet terdekat dengan matahari adalah...", options: ["Venus", "Bumi", "Mars", "Merkurius"] },
-            { pertanyaan: "Proses pembuatan makanan pada tumbuhan disebut...", options: ["Fotosintesis", "Respirasi", "Transpirasi", "Fermentasi"] }
+            { pertanyaan: "Organ pernapasan manusia adalah...", options: ["Jantung", "Paru-paru", "Lambung", "Hati"], jawabanBenar: "B" },
+            { pertanyaan: "Planet terdekat dengan matahari adalah...", options: ["Venus", "Bumi", "Mars", "Merkurius"], jawabanBenar: "D" },
+            { pertanyaan: "Proses pembuatan makanan pada tumbuhan disebut...", options: ["Fotosintesis", "Respirasi", "Transpirasi", "Fermentasi"], jawabanBenar: "A" }
         ],
         bahasa: [
-            { pertanyaan: "Sinonim dari kata 'Cepat' adalah...", options: ["Lambat", "Cepat", "Pelan", "Perlahan"] },
-            { pertanyaan: "Kata baku yang benar adalah...", options: ["Aktifitas", "Aktivitas", "Aktipitas", "Aktifitas"] },
-            { pertanyaan: "Amanat dalam cerita disebut juga...", options: ["Tema", "Alur", "Pesan Moral", "Latar"] }
+            { pertanyaan: "Sinonim dari kata 'Cepat' adalah...", options: ["Lambat", "Cepat", "Pelan", "Perlahan"], jawabanBenar: "B" },
+            { pertanyaan: "Kata baku yang benar adalah...", options: ["Aktifitas", "Aktivitas", "Aktipitas", "Aktifitas"], jawabanBenar: "B" },
+            { pertanyaan: "Amanat dalam cerita disebut juga...", options: ["Tema", "Alur", "Pesan Moral", "Latar"], jawabanBenar: "C" }
         ],
         inggris: [
-            { pertanyaan: "What is the meaning of 'Book'?", options: ["Buku", "Pensil", "Meja", "Kursi"] },
-            { pertanyaan: "How do you say 'Selamat pagi' in English?", options: ["Good Night", "Good Evening", "Good Afternoon", "Good Morning"] },
-            { pertanyaan: "The opposite of 'big' is...", options: ["Large", "Small", "Tall", "Wide"] }
+            { pertanyaan: "What is the meaning of 'Book'?", options: ["Buku", "Pensil", "Meja", "Kursi"], jawabanBenar: "A" },
+            { pertanyaan: "How do you say 'Selamat pagi' in English?", options: ["Good Night", "Good Evening", "Good Afternoon", "Good Morning"], jawabanBenar: "D" },
+            { pertanyaan: "The opposite of 'big' is...", options: ["Large", "Small", "Tall", "Wide"], jawabanBenar: "B" }
         ]
     };
     
@@ -503,18 +569,18 @@ function loadTemplate(template) {
     soalItems = selectedTemplate.map((item, idx) => ({
         nomor: idx + 1,
         pertanyaan: item.pertanyaan,
-        options: item.options
+        options: item.options,
+        jawabanBenar: item.jawabanBenar || 'A'
     }));
     renderSoalEditor();
     alert(`✅ Template ${template} berhasil dimuat! ${soalItems.length} soal siap digunakan.`);
 }
 
-// Submit tugas dengan format baru
+// Submit tugas dengan format baru (termasuk jawaban benar)
 if (document.getElementById('tugasForm')) {
     document.getElementById('tugasForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Validasi
         if (!validateSoal()) return;
         
         const namaGuru = document.getElementById('namaGuru').value;
@@ -523,8 +589,13 @@ if (document.getElementById('tugasForm')) {
             return;
         }
         
-        // Konversi soal ke format text untuk kompatibilitas
         const soalText = convertSoalToText();
+        
+        const soalWithAnswers = soalItems.map(soal => ({
+            pertanyaan: soal.pertanyaan,
+            options: soal.options,
+            jawabanBenar: soal.jawabanBenar
+        }));
         
         const tugasData = {
             judul: document.getElementById('judul').value,
@@ -534,7 +605,7 @@ if (document.getElementById('tugasForm')) {
             waktu: parseInt(document.getElementById('waktu').value),
             jumlahSoal: soalItems.length,
             soal: soalText.split('\n\n'),
-            soalDetail: soalItems
+            soalDetail: soalWithAnswers
         };
         
         try {
@@ -545,7 +616,7 @@ if (document.getElementById('tugasForm')) {
             });
             
             if (response.ok) {
-                alert(`✅ Tugas berhasil diupload!\n📝 Jumlah soal: ${soalItems.length}`);
+                alert(`✅ Tugas berhasil diupload!\n📝 Jumlah soal: ${soalItems.length}\n✅ Semua soal memiliki kunci jawaban`);
                 document.getElementById('tugasForm').reset();
                 initSoalEditor(1);
                 loadTugasList();
@@ -564,14 +635,11 @@ if (document.getElementById('tugasForm')) {
 // Tab Navigation
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Remove active class from all tabs and contents
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         
-        // Add active class to clicked tab
         btn.classList.add('active');
         
-        // Show corresponding content
         const tabId = btn.getAttribute('data-tab');
         const content = document.getElementById(`tab-${tabId}`);
         if (content) {
