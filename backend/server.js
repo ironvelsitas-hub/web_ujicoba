@@ -18,6 +18,7 @@ const DATA_DIR = isVercel ? '/tmp/ruang-ujian-data' : path.join(__dirname, 'data
 const TUGAS_FILE = path.join(DATA_DIR, 'tugas.json');
 const JAWABAN_FILE = path.join(DATA_DIR, 'jawaban.json');
 const PENGUMUMAN_FILE = path.join(DATA_DIR, 'pengumuman.json');
+const JADWAL_FILE = path.join(DATA_DIR, 'jadwal.json');
 
 // Pastikan folder data ada
 if (!fs.existsSync(DATA_DIR)) {
@@ -33,6 +34,9 @@ if (!fs.existsSync(JAWABAN_FILE)) {
 }
 if (!fs.existsSync(PENGUMUMAN_FILE)) {
   fs.writeFileSync(PENGUMUMAN_FILE, JSON.stringify([]));
+}
+if (!fs.existsSync(JADWAL_FILE)) {
+  fs.writeFileSync(JADWAL_FILE, JSON.stringify([]));
 }
 
 // ==================== ROUTES TUGAS ====================
@@ -164,6 +168,66 @@ app.put('/api/pengumuman/:id', (req, res) => {
   }
 });
 
+// ==================== ROUTES JADWAL UJIAN ====================
+
+// Get all jadwal
+app.get('/api/jadwal', (req, res) => {
+  try {
+    const jadwal = JSON.parse(fs.readFileSync(JADWAL_FILE, 'utf-8'));
+    res.json(jadwal);
+  } catch (error) {
+    res.json([]);
+  }
+});
+
+// Get jadwal by tugas ID
+app.get('/api/jadwal/tugas/:tugasId', (req, res) => {
+  try {
+    const jadwal = JSON.parse(fs.readFileSync(JADWAL_FILE, 'utf-8'));
+    const filtered = jadwal.filter(j => j.tugasId == req.params.tugasId);
+    res.json(filtered[0] || null);
+  } catch (error) {
+    res.json(null);
+  }
+});
+
+// Create or update jadwal
+app.post('/api/jadwal', (req, res) => {
+  try {
+    const jadwal = JSON.parse(fs.readFileSync(JADWAL_FILE, 'utf-8'));
+    const existingIndex = jadwal.findIndex(j => j.tugasId === req.body.tugasId);
+    
+    const newJadwal = {
+      id: Date.now(),
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
+    
+    if (existingIndex !== -1) {
+      jadwal[existingIndex] = newJadwal;
+    } else {
+      jadwal.push(newJadwal);
+    }
+    
+    fs.writeFileSync(JADWAL_FILE, JSON.stringify(jadwal, null, 2));
+    res.json({ success: true, jadwal: newJadwal });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete jadwal
+app.delete('/api/jadwal/:id', (req, res) => {
+  try {
+    const jadwal = JSON.parse(fs.readFileSync(JADWAL_FILE, 'utf-8'));
+    const filtered = jadwal.filter(j => j.id != req.params.id);
+    fs.writeFileSync(JADWAL_FILE, JSON.stringify(filtered, null, 2));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ==================== STATIC FILES & ROUTING ====================
 // Serve static files dari folder frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -220,6 +284,10 @@ app.listen(PORT, () => {
   console.log(`   - POST /api/pengumuman`);
   console.log(`   - DELETE /api/pengumuman/:id`);
   console.log(`   - PUT  /api/pengumuman/:id`);
+  console.log(`   - GET  /api/jadwal`);
+  console.log(`   - GET  /api/jadwal/tugas/:tugasId`);
+  console.log(`   - POST /api/jadwal`);
+  console.log(`   - DELETE /api/jadwal/:id`);
   console.log(`\n🌐 Frontend: http://localhost:${PORT}`);
 });
 

@@ -632,6 +632,120 @@ if (document.getElementById('tugasForm')) {
     });
 }
 
+// ==================== JADWAL UJIAN ====================
+
+// Load tugas untuk dropdown jadwal
+async function loadTugasForJadwal() {
+    try {
+        const response = await fetch('/api/tugas');
+        const tugas = await response.json();
+        const select = document.getElementById('jadwalTugasId');
+        
+        if (select) {
+            select.innerHTML = '<option value="">Pilih Tugas</option>' + 
+                tugas.map(t => `<option value="${t.id}">${escapeHtml(t.judul)} - ${escapeHtml(t.mapel)} (${escapeHtml(t.namaGuru || 'Guru')})</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading tugas:', error);
+    }
+}
+
+// Load daftar jadwal
+async function loadJadwalList() {
+    try {
+        const response = await fetch('/api/jadwal');
+        const jadwal = await response.json();
+        const tugasResponse = await fetch('/api/tugas');
+        const tugas = await tugasResponse.json();
+        
+        const listContainer = document.getElementById('jadwalList');
+        
+        if (jadwal.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #999;">Belum ada jadwal ujian</p>';
+            return;
+        }
+        
+        listContainer.innerHTML = jadwal.map(j => {
+            const tugasItem = tugas.find(t => t.id == j.tugasId);
+            const statusClass = j.status === 'active' ? 'status-active' : 
+                               j.status === 'upcoming' ? 'status-upcoming' : 'status-closed';
+            const statusText = j.status === 'active' ? '✅ Aktif' : 
+                              j.status === 'upcoming' ? '📅 Akan Datang' : '🔒 Ditutup';
+            
+            return `
+                <div class="jadwal-item">
+                    <div class="jadwal-info">
+                        <h4>${escapeHtml(tugasItem?.judul || 'Tugas tidak ditemukan')}</h4>
+                        <p>📖 ${escapeHtml(tugasItem?.mapel || '-')} | 👨‍🏫 ${escapeHtml(tugasItem?.namaGuru || '-')}</p>
+                        <p>📅 ${j.tanggal} | ⏰ ${j.jamMulai} - ${j.jamSelesai}</p>
+                        <p>⏱️ Durasi: ${j.durasi} menit</p>
+                        <span class="jadwal-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div>
+                        <button class="delete-btn" onclick="deleteJadwal(${j.id})">Hapus</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Error loading jadwal:', error);
+    }
+}
+
+// Submit jadwal
+document.getElementById('jadwalForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const jadwalData = {
+        tugasId: parseInt(document.getElementById('jadwalTugasId').value),
+        tanggal: document.getElementById('jadwalTanggal').value,
+        jamMulai: document.getElementById('jadwalJamMulai').value,
+        jamSelesai: document.getElementById('jadwalJamSelesai').value,
+        durasi: parseInt(document.getElementById('jadwalDurasi').value),
+        status: document.getElementById('jadwalStatus').value
+    };
+    
+    if (!jadwalData.tugasId) {
+        alert('❌ Pilih tugas terlebih dahulu!');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/jadwal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(jadwalData)
+        });
+        
+        if (response.ok) {
+            alert('✅ Jadwal ujian berhasil disimpan!');
+            document.getElementById('jadwalForm').reset();
+            loadJadwalList();
+            loadTugasForJadwal();
+        } else {
+            alert('❌ Gagal menyimpan jadwal');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Gagal menyimpan jadwal');
+    }
+});
+
+// Delete jadwal
+async function deleteJadwal(id) {
+    if (confirm('Yakin ingin menghapus jadwal ini?')) {
+        try {
+            await fetch(`/api/jadwal/${id}`, { method: 'DELETE' });
+            alert('✅ Jadwal berhasil dihapus');
+            loadJadwalList();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Gagal menghapus jadwal');
+        }
+    }
+}
+
 // Tab Navigation
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -660,5 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTugasList();
     loadJawaban();
     loadPengumumanList();
+    loadTugasForJadwal();
+    loadJadwalList();
     initSoalEditor(1);
 });

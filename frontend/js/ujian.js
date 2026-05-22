@@ -17,8 +17,69 @@ if (!studentData || studentData.tugasId != tugasId) {
     window.location.href = '/';
 }
 
+// Cek apakah ujian sesuai jadwal
+async function checkExamSchedule(tugasId) {
+    try {
+        const response = await fetch(`/api/jadwal/tugas/${tugasId}`);
+        const schedule = await response.json();
+        
+        if (!schedule) return true; // Tidak ada jadwal, boleh akses
+        
+        const now = new Date();
+        const examStart = new Date(`${schedule.tanggal}T${schedule.jamMulai}`);
+        const examEnd = new Date(`${schedule.tanggal}T${schedule.jamSelesai}`);
+        
+        console.log('📅 Jadwal Ujian:', {
+            start: examStart,
+            end: examEnd,
+            now: now,
+            status: schedule.status
+        });
+        
+        if (now < examStart) {
+            const timeLeft = examStart - now;
+            const minutesLeft = Math.floor(timeLeft / 60000);
+            const hoursLeft = Math.floor(timeLeft / 3600000);
+            let timeText = '';
+            if (hoursLeft > 0) {
+                timeText = `${hoursLeft} jam ${minutesLeft % 60} menit`;
+            } else {
+                timeText = `${minutesLeft} menit`;
+            }
+            alert(`⏰ Ujian belum dimulai!\n\n📋 ${schedule.judul || 'Ujian'}\n📅 Tanggal: ${schedule.tanggal}\n⏰ Waktu: ${schedule.jamMulai} - ${schedule.jamSelesai}\n\n⏳ Waktu tersisa: ${timeText} lagi.`);
+            window.location.href = '/';
+            return false;
+        }
+        
+        if (now > examEnd) {
+            alert(`🔒 Ujian sudah berakhir!\n\n📋 ${schedule.judul || 'Ujian'}\n📅 Tanggal: ${schedule.tanggal}\n⏰ Waktu: ${schedule.jamMulai} - ${schedule.jamSelesai}\n\nMaaf, Anda sudah tidak bisa mengikuti ujian ini.`);
+            window.location.href = '/';
+            return false;
+        }
+        
+        if (schedule.status !== 'active') {
+            let statusText = schedule.status === 'upcoming' ? 'Akan Datang' : 'Ditutup';
+            let statusIcon = schedule.status === 'upcoming' ? '📅' : '🔒';
+            alert(`${statusIcon} Ujian sedang tidak aktif.\n\nStatus: ${statusText}\n\nSilakan hubungi guru untuk informasi lebih lanjut.`);
+            window.location.href = '/';
+            return false;
+        }
+        
+        console.log('✅ Jadwal valid, ujian dapat dimulai');
+        return true;
+        
+    } catch (error) {
+        console.error('Error checking schedule:', error);
+        return true; // Jika error, izinkan akses
+    }
+}
+
 // Load tugas
 async function loadTugas() {
+    // Cek jadwal terlebih dahulu
+    const isAllowed = await checkExamSchedule(tugasId);
+    if (!isAllowed) return;
+    
     try {
         const response = await fetch('/api/tugas');
         const semuaTugas = await response.json();
@@ -31,7 +92,7 @@ async function loadTugas() {
         }
         
         document.getElementById('judulUjian').textContent = tugasData.judul;
-        document.getElementById('mapelUjian').textContent = `📖 ${tugasData.mapel}|👨‍🏫 ${tugasData.namaGuru || 'Guru'}`;
+        document.getElementById('mapelUjian').innerHTML = `📖 ${tugasData.mapel} | 👨‍🏫 ${tugasData.namaGuru || 'Guru'}`;
         
         waktuTersisa = tugasData.waktu * 60;
         startTimer();
@@ -134,7 +195,7 @@ function displaySoal() {
         
         soalDiv.innerHTML = `
             <div class="soal-text">
-                <strong>Soal ${index + 1}.</strong> ${questionText || 'Soal tidak tersedia'}
+                <strong>Soal ${index + 1}.</strong> ${escapeHtml(questionText || 'Soal tidak tersedia')}
             </div>
             <div class="options">
                 ${options.map(opt => {
@@ -144,7 +205,7 @@ function displaySoal() {
                         <label class="option">
                             <input type="radio" name="soal${index}" value="${letter}"
                                 onchange="saveAnswer(${index}, '${letter}')">
-                            <span><strong>${letter}.</strong> ${text}</span>
+                            <span><strong>${letter}.</strong> ${escapeHtml(text)}</span>
                         </label>
                     `;
                 }).join('')}
@@ -233,6 +294,10 @@ async function submitUjian() {
                             break;
                         }
                     }
+                } else if (typeof soalText === 'object' && soalText.jawabanBenar) {
+                    // Jika menggunakan format soal detail dengan jawaban benar
+                    correctAnswer = soalText.jawabanBenar;
+                    questionText = soalText.pertanyaan;
                 }
                 
                 const isCorrect = (jawab === correctAnswer);
@@ -330,27 +395,27 @@ function tampilkanHasilUjian() {
             <div class="hasil-info">
                 <div class="info-row">
                     <span class="info-label">Nama Siswa:</span>
-                    <span class="info-value">${hasilUjian.siswa.nama}</span>
+                    <span class="info-value">${escapeHtml(hasilUjian.siswa.nama)}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">NIS:</span>
-                    <span class="info-value">${hasilUjian.siswa.nis}</span>
+                    <span class="info-value">${escapeHtml(hasilUjian.siswa.nis)}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Kelas:</span>
-                    <span class="info-value">${hasilUjian.siswa.kelas}</span>
+                    <span class="info-value">${escapeHtml(hasilUjian.siswa.kelas)}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Mata Pelajaran:</span>
-                    <span class="info-value">${hasilUjian.tugas.mapel}</span>
+                    <span class="info-value">${escapeHtml(hasilUjian.tugas.mapel)}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Nama Guru:</span>
-                    <span class="info-value">${hasilUjian.tugas.namaGuru || '-'}</span>
+                    <span class="info-value">${escapeHtml(hasilUjian.tugas.namaGuru || '-')}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Judul Tugas:</span>
-                    <span class="info-value">${hasilUjian.tugas.judul}</span>
+                    <span class="info-value">${escapeHtml(hasilUjian.tugas.judul)}</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Tanggal:</span>
@@ -381,11 +446,11 @@ function tampilkanHasilUjian() {
                         ${hasilUjian.jawabanDetail.map(detail => `
                             <tr>
                                 <td>${detail.nomor}</td>
-                                <td>${escapeHtml(detail.soal.substring(0, 50))}${detail.soal.length > 50 ? '...' : ''}</td>
+                                <td>${escapeHtml(detail.soal ? detail.soal.substring(0, 50) : '-')}${detail.soal && detail.soal.length > 50 ? '...' : ''}</td>
                                 <td>${detail.jawabanSiswa || '-'}</td>
                                 <td class="${detail.status ? 'status-benar' : 'status-salah'}">
                                     ${detail.status ? '✅ Benar' : '❌ Salah'}
-                                </td>
+                                 </td>
                             </tr>
                         `).join('')}
                     </tbody>

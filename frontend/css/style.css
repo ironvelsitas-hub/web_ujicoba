@@ -1936,3 +1936,100 @@ body {
     font-size: 0.85rem;
     color: #4caf50;
 }
+
+
+/* Jadwal Ujian Styles */
+.jadwal-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.jadwal-info {
+    flex: 1;
+}
+
+.jadwal-info h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.jadwal-info p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.jadwal-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-upcoming {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-closed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.countdown-timer {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+/* Countdown di halaman beranda */
+.countdown-section {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: center;
+}
+
+.countdown-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.countdown-clock {
+    font-size: 3rem;
+    font-weight: 800;
+    font-family: monospace;
+    margin: 1rem 0;
+}
+
+.countdown-info {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Modal Presensi */
+.presensi-code {
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 10px;
+    background: #f0f0f0;
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+}

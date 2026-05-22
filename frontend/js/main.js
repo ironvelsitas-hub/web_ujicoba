@@ -16,7 +16,100 @@ function createParticles() {
     }
 }
 
-// Load tugas dengan debug dan error handling
+// Display tugas function
+function displayTugas(tugas) {
+    const tugasGrid = document.getElementById('tugasGrid');
+    const totalTugasSpan = document.getElementById('totalTugas');
+    
+    if (!tugasGrid) return;
+    
+    if (totalTugasSpan) totalTugasSpan.textContent = tugas.length;
+    
+    if (tugas.length === 0) {
+        tugasGrid.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>Belum Ada Tugas</h3>
+                <p>Belum ada tugas yang tersedia saat ini.<br>Silakan cek kembali nanti.</p>
+                <button class="btn-primary" onclick="window.location.href='/dashboard.html'" style="margin-top: 1rem;">
+                    Hubungi Guru →
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    tugasGrid.innerHTML = tugas.map(t => `
+        <div class="tugas-card" onclick="openFormModal(${t.id})">
+            <h3>${escapeHtml(t.judul)}</h3>
+            <div class="mapel">📖 ${escapeHtml(t.mapel)}</div>
+            <div class="guru">👨‍🏫 ${escapeHtml(t.namaGuru || 'Guru')}</div>
+            <p class="deskripsi">${escapeHtml(t.deskripsi ? t.deskripsi.substring(0, 100) : 'Tidak ada deskripsi')}...</p>
+            <div class="meta">
+                <span>⏱️ ${t.waktu || 0} menit</span>
+                <span>📝 ${t.jumlahSoal || 0} soal</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Load tugas dengan filter jadwal (hanya tampilkan tugas yang jadwalnya aktif)
+async function loadTugasWithSchedule() {
+    const tugasGrid = document.getElementById('tugasGrid');
+    if (!tugasGrid) return;
+    
+    // Tampilkan loading state
+    tugasGrid.innerHTML = '<div class="loading-spinner">📚 Memuat daftar tugas...</div>';
+    
+    try {
+        const [tugasRes, jadwalRes] = await Promise.all([
+            fetch('/api/tugas'),
+            fetch('/api/jadwal')
+        ]);
+        
+        const semuaTugas = await tugasRes.json();
+        const jadwal = await jadwalRes.json();
+        const now = new Date();
+        
+        console.log(`📋 Total tugas: ${semuaTugas.length}, Total jadwal: ${jadwal.length}`);
+        
+        // Filter tugas yang jadwalnya aktif
+        const tugasWithSchedule = semuaTugas.map(tugas => {
+            const schedule = jadwal.find(j => j.tugasId === tugas.id);
+            if (!schedule) {
+                // Tugas tanpa jadwal tetap ditampilkan
+                return { ...tugas, isAvailable: true, schedule: null };
+            }
+            
+            const examStart = new Date(`${schedule.tanggal}T${schedule.jamMulai}`);
+            const examEnd = new Date(`${schedule.tanggal}T${schedule.jamSelesai}`);
+            const isAvailable = now >= examStart && now <= examEnd && schedule.status === 'active';
+            
+            console.log(`Tugas ${tugas.judul}: isAvailable=${isAvailable}, status=${schedule.status}`);
+            
+            return {
+                ...tugas,
+                isAvailable,
+                schedule,
+                examStart,
+                examEnd
+            };
+        });
+        
+        // Tampilkan hanya tugas yang tersedia
+        const availableTugas = tugasWithSchedule.filter(t => t.isAvailable);
+        console.log(`✅ Tugas tersedia: ${availableTugas.length} dari ${semuaTugas.length}`);
+        
+        displayTugas(availableTugas);
+        
+    } catch (error) {
+        console.error('❌ Error loading tugas with schedule:', error);
+        // Fallback ke load biasa
+        loadTugas();
+    }
+}
+
+// Load tugas biasa (tanpa filter jadwal) - fallback
 async function loadTugas() {
     const tugasGrid = document.getElementById('tugasGrid');
     const totalTugasSpan = document.getElementById('totalTugas');
@@ -37,34 +130,7 @@ async function loadTugas() {
         const tugas = await response.json();
         console.log(`✅ Tugas loaded: ${tugas.length} items`, tugas);
         
-        if (totalTugasSpan) totalTugasSpan.textContent = tugas.length;
-        
-        if (tugas.length === 0) {
-            tugasGrid.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">📭</div>
-                    <h3>Belum Ada Tugas</h3>
-                    <p>Belum ada tugas yang diupload oleh guru.<br>Silakan cek kembali nanti.</p>
-                    <button class="btn-primary" onclick="window.location.href='/dashboard.html'" style="margin-top: 1rem;">
-                        Hubungi Guru →
-                    </button>
-                </div>
-            `;
-            return;
-        }
-        
-        tugasGrid.innerHTML = tugas.map(t => `
-            <div class="tugas-card" onclick="openFormModal(${t.id})">
-                <h3>${escapeHtml(t.judul)}</h3>
-                <div class="mapel">📖 ${escapeHtml(t.mapel)}</div>
-                <div class="guru">👨‍🏫 ${escapeHtml(t.namaGuru || 'Guru')}</div>
-                <p class="deskripsi">${escapeHtml(t.deskripsi ? t.deskripsi.substring(0, 100) : 'Tidak ada deskripsi')}...</p>
-                <div class="meta">
-                    <span>⏱️ ${t.waktu || 0} menit</span>
-                    <span>📝 ${t.jumlahSoal || 0} soal</span>
-                </div>
-            </div>
-        `).join('');
+        displayTugas(tugas);
         
     } catch (error) {
         console.error('❌ Error loading tugas:', error);
@@ -79,6 +145,86 @@ async function loadTugas() {
             </div>
         `;
     }
+}
+
+// Cek jadwal ujian terdekat
+async function checkUpcomingExam() {
+    try {
+        const response = await fetch('/api/jadwal');
+        const jadwal = await response.json();
+        const now = new Date();
+        
+        // Cari jadwal yang akan datang
+        const upcoming = jadwal.filter(j => {
+            const examDate = new Date(`${j.tanggal}T${j.jamMulai}`);
+            return examDate > now && j.status === 'upcoming';
+        }).sort((a, b) => new Date(`${a.tanggal}T${a.jamMulai}`) - new Date(`${b.tanggal}T${b.jamMulai}`));
+        
+        const countdownSection = document.getElementById('countdownSection');
+        
+        if (upcoming.length > 0 && upcoming[0]) {
+            const nextExam = upcoming[0];
+            // Ambil data tugas untuk mendapatkan judul
+            const tugasRes = await fetch('/api/tugas');
+            const semuaTugas = await tugasRes.json();
+            const tugasItem = semuaTugas.find(t => t.id == nextExam.tugasId);
+            
+            const examDateTime = new Date(`${nextExam.tanggal}T${nextExam.jamMulai}`);
+            const timeDiff = examDateTime - now;
+            
+            if (timeDiff > 0 && timeDiff <= 7 * 24 * 60 * 60 * 1000) { // Hanya dalam 7 hari
+                countdownSection.style.display = 'block';
+                startCountdown(examDateTime, {
+                    judul: tugasItem?.judul || 'Ujian',
+                    jamMulai: nextExam.jamMulai
+                });
+            } else {
+                countdownSection.style.display = 'none';
+            }
+        } else {
+            countdownSection.style.display = 'none';
+        }
+        
+    } catch (error) {
+        console.error('Error checking jadwal:', error);
+    }
+}
+
+// Start countdown timer
+function startCountdown(targetDate, examData) {
+    const clockElement = document.getElementById('countdownClock');
+    const infoElement = document.getElementById('countdownInfo');
+    
+    if (!clockElement) return;
+    
+    function updateCountdown() {
+        const now = new Date();
+        const diff = targetDate - now;
+        
+        if (diff <= 0) {
+            clockElement.innerHTML = "🚀 Ujian Dimulai!";
+            infoElement.innerHTML = `Ujian ${examData.judul} sudah dimulai. Silakan refresh halaman.`;
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        let timeString = '';
+        if (days > 0) timeString += `${days} hari `;
+        timeString += `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        clockElement.innerHTML = timeString;
+        infoElement.innerHTML = `📢 ${examData.judul} akan dimulai pada ${targetDate.toLocaleDateString('id-ID')} pukul ${examData.jamMulai}`;
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 }
 
 // Load latest pengumuman untuk ditampilkan di beranda
@@ -235,7 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Ruang Ujian App Started');
     createParticles();
     checkAPI();
-    loadTugas();
+    checkUpcomingExam(); // Cek jadwal ujian terdekat
+    loadTugasWithSchedule(); // Load tugas dengan filter jadwal
     loadActiveStudents();
     loadLatestPengumuman();
 });

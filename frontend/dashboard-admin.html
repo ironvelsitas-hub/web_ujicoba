@@ -28,7 +28,7 @@
     <div class="dashboard-container">
         <div class="dashboard-header">
             <h1>Dashboard Guru</h1>
-            <p>Kelola ujian, tugas, pengumuman, dan lihat hasil siswa</p>
+            <p>Kelola ujian, tugas, pengumuman, jadwal, dan lihat hasil siswa</p>
         </div>
 
         <!-- Stats Cards -->
@@ -67,6 +67,7 @@
         <div class="tab-navigation">
             <button class="tab-btn active" data-tab="tugas">📤 Upload Tugas</button>
             <button class="tab-btn" data-tab="daftar-tugas">📋 Daftar Tugas</button>
+            <button class="tab-btn" data-tab="jadwal">📅 Jadwal Ujian</button>
             <button class="tab-btn" data-tab="pengumuman">📢 Buat Pengumuman</button>
             <button class="tab-btn" data-tab="daftar-pengumuman">📋 Daftar Pengumuman</button>
             <button class="tab-btn" data-tab="hasil">📊 Hasil Ujian</button>
@@ -144,6 +145,55 @@
             <div class="card">
                 <h2>📋 Daftar Tugas</h2>
                 <div class="tugas-list" id="tugasList"></div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Jadwal Ujian -->
+        <div id="tab-jadwal" class="tab-content">
+            <div class="card form-card">
+                <h2>📅 Atur Jadwal Ujian</h2>
+                <form id="jadwalForm">
+                    <div class="form-group">
+                        <label>Pilih Tugas</label>
+                        <select id="jadwalTugasId" required>
+                            <option value="">Pilih Tugas</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tanggal Ujian</label>
+                            <input type="date" id="jadwalTanggal" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jam Mulai</label>
+                            <input type="time" id="jadwalJamMulai" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Jam Selesai</label>
+                            <input type="time" id="jadwalJamSelesai" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Durasi (Menit)</label>
+                            <input type="number" id="jadwalDurasi" required placeholder="60">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Status Ujian</label>
+                        <select id="jadwalStatus">
+                            <option value="upcoming">📅 Akan Datang</option>
+                            <option value="active">✅ Aktif</option>
+                            <option value="closed">🔒 Ditutup</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">💾 Simpan Jadwal</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Daftar Jadwal Ujian</h2>
+                <div class="jadwal-list" id="jadwalList"></div>
             </div>
         </div>
 

@@ -121,5 +121,74 @@
       }
     ],
     "tanggal": "2026-05-21T18:45:13.181Z"
+  },
+  {
+    "id": 1779456416368,
+    "judul": "matek bab 3",
+    "mapel": "matek",
+    "namaGuru": "ironvelsitas",
+    "deskripsi": "kerjakan tugasnya ya",
+    "waktu": 1,
+    "jumlahSoal": 5,
+    "soal": [
+      "Hasil dari 2 + 2 adalah...\nA. 3\nB. 4\nC. 5\nD. 6\n[JAWABAN: B]",
+      "Akar kuadrat dari 144 adalah...\nA. 10\nB. 11\nC. 12\nD. 13\n[JAWABAN: C]",
+      "Berapa hasil dari 15 × 4?\nA. 50\nB. 60\nC. 70\nD. 80\n[JAWABAN: B]",
+      "Bilangan prima berikut ini adalah...\nA. 4\nB. 6\nC. 7\nD. 9\n[JAWABAN: C]",
+      "Hasil dari 100 ÷ 5 adalah...\nA. 15\nB. 20\nC. 25\nD. 30\n[JAWABAN: B]"
+    ],
+    "soalDetail": [
+      {
+        "pertanyaan": "Hasil dari 2 + 2 adalah...",
+        "options": [
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "jawabanBenar": "B"
+      },
+      {
+        "pertanyaan": "Akar kuadrat dari 144 adalah...",
+        "options": [
+          "10",
+          "11",
+          "12",
+          "13"
+        ],
+        "jawabanBenar": "C"
+      },
+      {
+        "pertanyaan": "Berapa hasil dari 15 × 4?",
+        "options": [
+          "50",
+          "60",
+          "70",
+          "80"
+        ],
+        "jawabanBenar": "B"
+      },
+      {
+        "pertanyaan": "Bilangan prima berikut ini adalah...",
+        "options": [
+          "4",
+          "6",
+          "7",
+          "9"
+        ],
+        "jawabanBenar": "C"
+      },
+      {
+        "pertanyaan": "Hasil dari 100 ÷ 5 adalah...",
+        "options": [
+          "15",
+          "20",
+          "25",
+          "30"
+        ],
+        "jawabanBenar": "B"
+      }
+    ],
+    "tanggal": "2026-05-22T13:26:56.368Z"
   }
 ]
