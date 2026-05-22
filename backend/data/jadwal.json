@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1779458829008,
+    "tugasId": 1779458426505,
+    "tanggal": "2026-05-22",
+    "jamMulai": "21:30",
+    "jamSelesai": "22:30",
+    "durasi": 60,
+    "status": "upcoming",
+    "createdAt": "2026-05-22T14:07:09.008Z"
+  }
+]
