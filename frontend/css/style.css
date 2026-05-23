@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'inter', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     color: #333;
@@ -539,28 +539,28 @@ body {
 /* Dark mode support (jika diperlukan) */
 @media (prefers-color-scheme: dark) {
     .tugas-section {
-        background: linear-gradient(135deg, #c6c6ce 0%, #16213e 100%);
+        background: linear-gradient(135deg, #f2f2f3 0%, #e2d9e1 100%);
     }
     
     .tugas-card {
-        background: #1e293b;
+        background: #f6f6f7;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
     
     .tugas-card h3 {
-        color: #e2e8f0;
+        color: #1170ec;
     }
     
     .tugas-card .deskripsi {
-        color: #94a3b8;
+        color: #357bdd;
     }
     
     .section-header p {
-        color: #94a3b8;
+        color: #3481ec;
     }
     
     .empty-state {
-        background: #1e293b;
+        background: #2673f0;
     }
     
     .empty-state h3 {
