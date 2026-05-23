@@ -94,6 +94,302 @@ async function loadTugasList() {
     }
 }
 
+// ==================== FITUR SOAL ESAI ====================
+
+let soalEsaiItems = [];
+
+// Inisialisasi editor soal esai
+function initSoalEsaiEditor(jumlahSoal = 1) {
+    const container = document.getElementById('soalEsaiEditorContainer');
+    if (!container) return;
+    
+    soalEsaiItems = [];
+    for (let i = 0; i < jumlahSoal; i++) {
+        soalEsaiItems.push({
+            nomor: i + 1,
+            pertanyaan: '',
+            bobot: 10,
+            petunjuk: ''
+        });
+    }
+    renderSoalEsaiEditor();
+}
+
+// Render editor soal esai
+function renderSoalEsaiEditor() {
+    const container = document.getElementById('soalEsaiEditorContainer');
+    if (!container) return;
+    
+    if (soalEsaiItems.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="padding: 2rem;"><p>Belum ada soal esai. Klik "Tambah Soal Esai" untuk mulai.</p></div>';
+        return;
+    }
+    
+    container.innerHTML = soalEsaiItems.map((soal, idx) => `
+        <div class="soal-esai-editor-item" data-soal-idx="${idx}">
+            <div class="soal-esai-editor-header">
+                <span class="esai-soal-number">📝 Soal Esai ${idx + 1}</span>
+                <div class="soal-actions">
+                    <button onclick="moveSoalEsaiUp(${idx})" title="Pindah ke atas">⬆️</button>
+                    <button onclick="moveSoalEsaiDown(${idx})" title="Pindah ke bawah">⬇️</button>
+                    <button onclick="copySoalEsai(${idx})" title="Duplikat">📋</button>
+                    <button onclick="deleteSoalEsai(${idx})" title="Hapus">🗑️</button>
+                </div>
+            </div>
+            <textarea class="esai-question-input" rows="3" placeholder="Masukkan pertanyaan esai..." 
+                   onchange="updateSoalEsai(${idx}, 'pertanyaan', this.value)">${escapeHtml(soal.pertanyaan)}</textarea>
+            <div class="form-row">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.8rem;">Bobot Nilai (maks 100)</label>
+                    <input type="number" class="esai-point-input" placeholder="Bobot nilai" min="1" max="100"
+                           value="${soal.bobot}" onchange="updateSoalEsai(${idx}, 'bobot', parseInt(this.value))">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.8rem;">Petunjuk (Opsional)</label>
+                    <input type="text" class="esai-point-input" placeholder="Contoh: Minimal 100 kata"
+                           value="${escapeHtml(soal.petunjuk || '')}" onchange="updateSoalEsai(${idx}, 'petunjuk', this.value)" style="width: 200px;">
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Update soal esai
+function updateSoalEsai(index, field, value) {
+    if (soalEsaiItems[index]) {
+        soalEsaiItems[index][field] = value;
+    }
+}
+
+// Tambah soal esai baru
+function addSoalEsai() {
+    soalEsaiItems.push({
+        nomor: soalEsaiItems.length + 1,
+        pertanyaan: '',
+        bobot: 10,
+        petunjuk: ''
+    });
+    renderSoalEsaiEditor();
+}
+
+// Hapus soal esai
+function deleteSoalEsai(index) {
+    if (confirm('Hapus soal esai ini?')) {
+        soalEsaiItems.splice(index, 1);
+        soalEsaiItems.forEach((soal, i) => soal.nomor = i + 1);
+        renderSoalEsaiEditor();
+    }
+}
+
+// Duplikat soal esai
+function copySoalEsai(index) {
+    const copySoal = JSON.parse(JSON.stringify(soalEsaiItems[index]));
+    copySoal.nomor = soalEsaiItems.length + 1;
+    soalEsaiItems.push(copySoal);
+    renderSoalEsaiEditor();
+}
+
+// Pindah soal esai ke atas
+function moveSoalEsaiUp(index) {
+    if (index > 0) {
+        [soalEsaiItems[index - 1], soalEsaiItems[index]] = [soalEsaiItems[index], soalEsaiItems[index - 1]];
+        soalEsaiItems.forEach((soal, i) => soal.nomor = i + 1);
+        renderSoalEsaiEditor();
+    }
+}
+
+// Pindah soal esai ke bawah
+function moveSoalEsaiDown(index) {
+    if (index < soalEsaiItems.length - 1) {
+        [soalEsaiItems[index + 1], soalEsaiItems[index]] = [soalEsaiItems[index], soalEsaiItems[index + 1]];
+        soalEsaiItems.forEach((soal, i) => soal.nomor = i + 1);
+        renderSoalEsaiEditor();
+    }
+}
+
+// Clear semua soal esai
+function clearSoalEsai() {
+    if (confirm('Hapus semua soal esai?')) {
+        soalEsaiItems = [];
+        renderSoalEsaiEditor();
+    }
+}
+
+// Validasi soal esai
+function validateSoalEsai() {
+    let errors = [];
+    
+    soalEsaiItems.forEach((soal, idx) => {
+        if (!soal.pertanyaan.trim()) {
+            errors.push(`Soal Esai ${idx + 1}: Pertanyaan kosong`);
+        }
+        if (!soal.bobot || soal.bobot < 1 || soal.bobot > 100) {
+            errors.push(`Soal Esai ${idx + 1}: Bobot harus antara 1-100`);
+        }
+    });
+    
+    if (errors.length > 0) {
+        alert('❌ Validasi Esai gagal:\n' + errors.join('\n'));
+        return false;
+    }
+    
+    alert('✅ Format soal esai valid!');
+    return true;
+}
+
+// Preview soal esai
+function previewSoalEsai() {
+    const modal = document.getElementById('previewModal');
+    const body = document.getElementById('previewBody');
+    
+    if (soalEsaiItems.length === 0) {
+        alert('Belum ada soal esai untuk dipreview');
+        return;
+    }
+    
+    let html = '<div class="preview-container"><h3>✍️ Preview Soal Esai</h3>';
+    soalEsaiItems.forEach((soal, idx) => {
+        html += `
+            <div class="preview-esai-item">
+                <div class="preview-esai-text">
+                    <strong>Soal Esai ${idx + 1}.</strong> ${escapeHtml(soal.pertanyaan)}
+                </div>
+                <div class="preview-esai-point">
+                    📊 Bobot: ${soal.bobot} poin
+                    ${soal.petunjuk ? `<br>💡 Petunjuk: ${escapeHtml(soal.petunjuk)}` : ''}
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    body.innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+// Toggle jenis tugas (PG / Esai / Campuran)
+function toggleJenisTugas() {
+    const jenis = document.getElementById('jenisTugas').value;
+    const pgContainer = document.getElementById('pilihanGandaContainer');
+    const esaiContainer = document.getElementById('esaiContainer');
+    
+    if (jenis === 'pilihan_ganda') {
+        pgContainer.style.display = 'block';
+        esaiContainer.style.display = 'none';
+    } else if (jenis === 'esai') {
+        pgContainer.style.display = 'none';
+        esaiContainer.style.display = 'block';
+        initSoalEsaiEditor(1);
+    } else { // campuran
+        pgContainer.style.display = 'block';
+        esaiContainer.style.display = 'block';
+        if (soalEsaiItems.length === 0) initSoalEsaiEditor(1);
+    }
+}
+
+// Update fungsi submit untuk mendukung esai
+// Cari dan ganti fungsi submit tugas yang ada dengan yang baru ini
+if (document.getElementById('tugasForm')) {
+    // Hapus event listener lama jika ada
+    const oldForm = document.getElementById('tugasForm');
+    const newForm = oldForm.cloneNode(true);
+    oldForm.parentNode.replaceChild(newForm, oldForm);
+    
+    newForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const jenisTugas = document.getElementById('jenisTugas').value;
+        
+        // Validasi berdasarkan jenis tugas
+        if (jenisTugas === 'pilihan_ganda' || jenisTugas === 'campuran') {
+            if (!validateSoal()) return;
+        }
+        
+        if (jenisTugas === 'esai' || jenisTugas === 'campuran') {
+            if (!validateSoalEsai()) return;
+        }
+        
+        const namaGuru = document.getElementById('namaGuru').value;
+        if (!namaGuru || namaGuru.trim() === '') {
+            alert('❌ Nama Guru harus diisi!');
+            return;
+        }
+        
+        // Konversi soal ke format text
+        let soalText = '';
+        let jumlahSoal = 0;
+        let soalDetail = {};
+        
+        if (jenisTugas === 'pilihan_ganda') {
+            soalText = convertSoalToText();
+            jumlahSoal = soalItems.length;
+            soalDetail = { tipe: 'pilihan_ganda', soal: soalItems };
+        } else if (jenisTugas === 'esai') {
+            soalText = convertSoalEsaiToText();
+            jumlahSoal = soalEsaiItems.length;
+            soalDetail = { tipe: 'esai', soal: soalEsaiItems };
+        } else {
+            // Campuran
+            const pgText = convertSoalToText();
+            const esaiText = convertSoalEsaiToText();
+            soalText = `${pgText}\n\n=== SOAL ESAI ===\n\n${esaiText}`;
+            jumlahSoal = soalItems.length + soalEsaiItems.length;
+            soalDetail = { 
+                tipe: 'campuran', 
+                pilihanGanda: soalItems, 
+                esai: soalEsaiItems 
+            };
+        }
+        
+        const tugasData = {
+            judul: document.getElementById('judul').value,
+            mapel: document.getElementById('mapel').value,
+            namaGuru: namaGuru.trim(),
+            deskripsi: document.getElementById('deskripsi').value,
+            waktu: parseInt(document.getElementById('waktu').value),
+            jumlahSoal: jumlahSoal,
+            jenisTugas: jenisTugas,
+            soal: soalText.split('\n\n'),
+            soalDetail: soalDetail
+        };
+        
+        try {
+            const response = await fetch('/api/tugas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tugasData)
+            });
+            
+            if (response.ok) {
+                alert(`✅ Tugas berhasil diupload!\n📝 Jenis: ${jenisTugas === 'pilihan_ganda' ? 'Pilihan Ganda' : jenisTugas === 'esai' ? 'Esai' : 'Campuran'}\n📊 Jumlah soal: ${jumlahSoal}`);
+                document.getElementById('tugasForm').reset();
+                initSoalEditor(1);
+                soalEsaiItems = [];
+                renderSoalEsaiEditor();
+                loadTugasList();
+                loadStats();
+                loadJawaban();
+            } else {
+                alert('❌ Gagal mengupload tugas');
+            }
+        } catch (error) {
+            console.error('Error uploading tugas:', error);
+            alert('❌ Gagal mengupload tugas');
+        }
+    });
+}
+
+// Konversi soal esai ke text
+function convertSoalEsaiToText() {
+    return soalEsaiItems.map(soal => {
+        let text = `[ESAI] ${soal.pertanyaan}`;
+        text += `\n[BOBOT: ${soal.bobot}]`;
+        if (soal.petunjuk) text += `\n[PETUNJUK: ${soal.petunjuk}]`;
+        return text;
+    }).join('\n\n');
+}
+
+
 // Load jawaban siswa
 async function loadJawaban() {
     try {
@@ -763,4 +1059,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTugasForJadwal();
     loadJadwalList();
     initSoalEditor(1);
+    initSoalEsaiEditor(1); 
+    document.getElementById('jenisTugas').value = 'pilihan_ganda';
 });

@@ -82,13 +82,13 @@
                 <div class="template-section">
                     <h3>📋 Template Soal Cepat</h3>
                     <div class="template-buttons">
-                    <button type="button" class="template-btn" onclick="loadTemplate('matematika')">📐 Matematika</button>
-                    <button type="button" class="template-btn" onclick="loadTemplate('ipa')">🔬 IPA</button>
-                    <button type="button" class="template-btn" onclick="loadTemplate('bahasa')">📖 Bahasa Indonesia</button>
-                    <button type="button" class="template-btn" onclick="loadTemplate('inggris')">🇬🇧 Bahasa Inggris</button>
-                    <button type="button" class="template-btn" onclick="loadTemplate('webprog')">💻 Web Programming</button>
-                    <button type="button" class="template-btn" onclick="loadTemplate('ppkn')">🇮🇩 PPKN</button>
-                    <button type="button" class="template-btn" onclick="loadTemplate('biologi')">🧬 Biologi</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('matematika')">📐 Matematika</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('ipa')">🔬 IPA</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('bahasa')">📖 Bahasa Indonesia</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('inggris')">🇬🇧 Bahasa Inggris</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('webprog')">💻 Web Programming</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('ppkn')">🇮🇩 PPKN</button>
+                        <button type="button" class="template-btn" onclick="loadTemplate('biologi')">🧬 Biologi</button>
                     </div>
                 </div>
 
@@ -111,6 +111,17 @@
                         <label>Deskripsi Tugas</label>
                         <textarea id="deskripsi" rows="2" required placeholder="Jelaskan tentang tugas ini..."></textarea>
                     </div>
+                    
+                    <!-- Jenis Tugas -->
+                    <div class="form-group">
+                        <label>Jenis Tugas</label>
+                        <select id="jenisTugas" required onchange="toggleJenisTugas()">
+                            <option value="pilihan_ganda">📝 Pilihan Ganda</option>
+                            <option value="esai">✍️ Tugas Esai (Essay)</option>
+                            <option value="campuran">🔄 Campuran (PG + Esai)</option>
+                        </select>
+                    </div>
+                    
                     <div class="form-row">
                         <div class="form-group">
                             <label>Waktu (Menit)</label>
@@ -122,20 +133,40 @@
                         </div>
                     </div>
                     
-                    <!-- Soal Editor dengan Jawaban Benar -->
-                    <div class="form-group">
-                        <label>📝 Soal-soal</label>
-                        <div class="info-banner">
-                            💡 <strong>Tips:</strong> Pilih jawaban benar dengan mengklik huruf (A, B, C, D) di bagian "Jawaban Benar"
+                    <!-- Kontainer untuk Pilihan Ganda (default tampil) -->
+                    <div id="pilihanGandaContainer">
+                        <div class="form-group">
+                            <label>📝 Soal Pilihan Ganda</label>
+                            <div class="info-banner">
+                                💡 <strong>Tips:</strong> Pilih jawaban benar dengan mengklik huruf (A, B, C, D) di bagian "Jawaban Benar"
+                            </div>
+                            <div class="soal-editor-tools">
+                                <button type="button" class="tool-btn" onclick="addSoal()">➕ Tambah Soal PG</button>
+                                <button type="button" class="tool-btn" onclick="validateSoal()">✅ Validasi Format</button>
+                                <button type="button" class="tool-btn" onclick="previewSoal()">👁️ Preview Soal</button>
+                                <button type="button" class="tool-btn" onclick="clearSoal()">🗑️ Clear All</button>
+                            </div>
+                            <div id="soalEditorContainer"></div>
+                            <textarea id="soal" style="display:none;"></textarea>
                         </div>
-                        <div class="soal-editor-tools">
-                            <button type="button" class="tool-btn" onclick="addSoal()">➕ Tambah Soal</button>
-                            <button type="button" class="tool-btn" onclick="validateSoal()">✅ Validasi Format</button>
-                            <button type="button" class="tool-btn" onclick="previewSoal()">👁️ Preview Soal</button>
-                            <button type="button" class="tool-btn" onclick="clearSoal()">🗑️ Clear All</button>
+                    </div>
+
+                    <!-- Kontainer untuk Soal Esai -->
+                    <div id="esaiContainer" style="display: none;">
+                        <div class="form-group">
+                            <label>📝 Soal Esai (Essay)</label>
+                            <div class="info-banner-esai">
+                                💡 <strong>Tips:</strong> Soal esai akan dijawab siswa dengan teks panjang. Jawaban akan dinilai manual oleh guru.
+                            </div>
+                            <div class="soal-editor-tools">
+                                <button type="button" class="tool-btn" onclick="addSoalEsai()">➕ Tambah Soal Esai</button>
+                                <button type="button" class="tool-btn" onclick="validateSoalEsai()">✅ Validasi Esai</button>
+                                <button type="button" class="tool-btn" onclick="previewSoalEsai()">👁️ Preview Esai</button>
+                                <button type="button" class="tool-btn" onclick="clearSoalEsai()">🗑️ Clear All Esai</button>
+                            </div>
+                            <div id="soalEsaiEditorContainer"></div>
+                            <textarea id="soalEsai" style="display:none;"></textarea>
                         </div>
-                        <div id="soalEditorContainer"></div>
-                        <textarea id="soal" style="display:none;"></textarea>
                     </div>
                     
                     <button type="submit" class="btn-primary">Upload Tugas →</button>

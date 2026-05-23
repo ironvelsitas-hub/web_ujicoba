@@ -2269,3 +2269,89 @@ body {
     border-radius: 10px;
     margin: 1rem 0;
 }
+
+
+/* Soal Esai Editor */
+.soal-esai-editor-item {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
+    border-left: 4px solid #10b981;
+}
+
+.soal-esai-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.esai-soal-number {
+    font-weight: 600;
+    color: #10b981;
+}
+
+.esai-question-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    font-family: 'Poppins', sans-serif;
+    resize: vertical;
+}
+
+.esai-point-input {
+    width: 120px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+}
+
+/* Info banner untuk esai */
+.info-banner-esai {
+    background: linear-gradient(135deg, #10b98115, #05966915);
+    border-left: 4px solid #10b981;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #065f46;
+}
+
+/* Preview Esai */
+.preview-esai-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #10b981;
+}
+
+.preview-esai-text {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.preview-esai-point {
+    font-size: 0.8rem;
+    color: #10b981;
+    margin-top: 0.5rem;
+}
+
+/* Jenis Tugas Select */
+select#jenisTugas {
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+select#jenisTugas option {
+    padding: 0.5rem;
+}
