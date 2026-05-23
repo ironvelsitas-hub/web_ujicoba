@@ -1,9 +1,10 @@
 let tugasData = null;
 let studentData = null;
 let jawaban = [];
+let jawabanEssay = [];
 let timer = null;
 let waktuTersisa = 0;
-let hasilUjian = null; // Untuk menyimpan hasil ujian
+let hasilUjian = null;
 
 // Get URL parameters
 const urlParams = new URLSearchParams(window.location.search);
@@ -23,67 +24,53 @@ async function checkExamSchedule(tugasId) {
         const response = await fetch(`/api/jadwal/tugas/${tugasId}`);
         const schedule = await response.json();
         
-        if (!schedule) return true; // Tidak ada jadwal, boleh akses
+        if (!schedule) return true;
         
         const now = new Date();
         const examStart = new Date(`${schedule.tanggal}T${schedule.jamMulai}`);
         const examEnd = new Date(`${schedule.tanggal}T${schedule.jamSelesai}`);
         
-        console.log('📅 Jadwal Ujian:', {
-            start: examStart,
-            end: examEnd,
-            now: now,
-            status: schedule.status
-        });
-        
         if (now < examStart) {
             const timeLeft = examStart - now;
             const minutesLeft = Math.floor(timeLeft / 60000);
-            const hoursLeft = Math.floor(timeLeft / 3600000);
-            let timeText = '';
-            if (hoursLeft > 0) {
-                timeText = `${hoursLeft} jam ${minutesLeft % 60} menit`;
-            } else {
-                timeText = `${minutesLeft} menit`;
-            }
-            alert(`⏰ Ujian belum dimulai!\n\n📋 ${schedule.judul || 'Ujian'}\n📅 Tanggal: ${schedule.tanggal}\n⏰ Waktu: ${schedule.jamMulai} - ${schedule.jamSelesai}\n\n⏳ Waktu tersisa: ${timeText} lagi.`);
+            alert(`⏰ Ujian belum dimulai!\n\nUjian akan dimulai pada:\n${schedule.tanggal} pukul ${schedule.jamMulai}\n\nWaktu tersisa: ${minutesLeft} menit lagi.`);
             window.location.href = '/';
             return false;
         }
         
         if (now > examEnd) {
-            alert(`🔒 Ujian sudah berakhir!\n\n📋 ${schedule.judul || 'Ujian'}\n📅 Tanggal: ${schedule.tanggal}\n⏰ Waktu: ${schedule.jamMulai} - ${schedule.jamSelesai}\n\nMaaf, Anda sudah tidak bisa mengikuti ujian ini.`);
+            alert(`🔒 Ujian sudah berakhir!\n\nUjian ditutup pada:\n${schedule.tanggal} pukul ${schedule.jamSelesai}`);
             window.location.href = '/';
             return false;
         }
         
         if (schedule.status !== 'active') {
-            let statusText = schedule.status === 'upcoming' ? 'Akan Datang' : 'Ditutup';
-            let statusIcon = schedule.status === 'upcoming' ? '📅' : '🔒';
-            alert(`${statusIcon} Ujian sedang tidak aktif.\n\nStatus: ${statusText}\n\nSilakan hubungi guru untuk informasi lebih lanjut.`);
+            alert(`📅 Ujian sedang tidak aktif.\nStatus: ${schedule.status === 'upcoming' ? 'Akan Datang' : 'Ditutup'}`);
             window.location.href = '/';
             return false;
         }
         
-        console.log('✅ Jadwal valid, ujian dapat dimulai');
         return true;
         
     } catch (error) {
         console.error('Error checking schedule:', error);
-        return true; // Jika error, izinkan akses
+        return true;
     }
 }
 
 // Load tugas
 async function loadTugas() {
-    // Cek jadwal terlebih dahulu
     const isAllowed = await checkExamSchedule(tugasId);
     if (!isAllowed) return;
     
     try {
+        console.log('📥 Memuat tugas dengan ID:', tugasId);
         const response = await fetch('/api/tugas');
         const semuaTugas = await response.json();
+        console.log('📋 Semua tugas:', semuaTugas);
+        
         tugasData = semuaTugas.find(t => t.id == tugasId);
+        console.log('✅ Tugas ditemukan:', tugasData);
         
         if (!tugasData) {
             alert('Tugas tidak ditemukan');
@@ -96,16 +83,31 @@ async function loadTugas() {
         
         waktuTersisa = tugasData.waktu * 60;
         startTimer();
+        
+        // Debug: Lihat struktur soal
+        console.log('📝 Struktur soal:', {
+            soal: tugasData.soal,
+            soalDetail: tugasData.soalDetail,
+            jenisTugas: tugasData.jenisTugas,
+            jumlahSoal: tugasData.jumlahSoal
+        });
+        
         displaySoal();
         createSoalNav();
         
-        // Initialize jawaban array
-        jawaban = new Array(tugasData.jumlahSoal).fill(null);
+        // Initialize jawaban arrays
+        const jumlahSoalPG = tugasData.soalDetail?.pilihanGanda?.length || tugasData.jumlahSoal || 0;
+        const jumlahSoalEssay = tugasData.soalDetail?.esai?.length || 0;
+        
+        jawaban = new Array(jumlahSoalPG).fill(null);
+        jawabanEssay = new Array(jumlahSoalEssay).fill('');
         
         // Load saved answers from localStorage
         const savedAnswers = localStorage.getItem(`jawaban_${tugasId}_${studentData.nis}`);
         if (savedAnswers) {
-            jawaban = JSON.parse(savedAnswers);
+            const saved = JSON.parse(savedAnswers);
+            if (saved.jawaban) jawaban = saved.jawaban;
+            if (saved.jawabanEssay) jawabanEssay = saved.jawabanEssay;
             updateNavButtons();
             restoreAnswers();
         }
@@ -119,9 +121,14 @@ function restoreAnswers() {
     for (let i = 0; i < jawaban.length; i++) {
         if (jawaban[i] !== null) {
             const radio = document.querySelector(`input[name="soal${i}"][value="${jawaban[i]}"]`);
-            if (radio) {
-                radio.checked = true;
-            }
+            if (radio) radio.checked = true;
+        }
+    }
+    
+    for (let i = 0; i < jawabanEssay.length; i++) {
+        const textarea = document.getElementById(`essay-${i}`);
+        if (textarea && jawabanEssay[i]) {
+            textarea.value = jawabanEssay[i];
         }
     }
 }
@@ -154,89 +161,219 @@ function updateTimerDisplay() {
 
 function displaySoal() {
     const container = document.getElementById('soalContainer');
-    
     if (!container) return;
-    
-    if (!tugasData.soal || tugasData.soal.length === 0) {
-        container.innerHTML = '<div class="error-message">⚠️ Tidak ada soal untuk tugas ini</div>';
-        return;
-    }
     
     container.innerHTML = '';
     
-    tugasData.soal.forEach((soal, index) => {
-        let questionText = '';
-        let options = [];
+    // CEK APAKAH ADA SOAL DI tugasData.soal
+    console.log('🔄 Menampilkan soal...');
+    console.log('tugasData.soal:', tugasData.soal);
+    console.log('tugasData.soalDetail:', tugasData.soalDetail);
+    console.log('tugasData.jenisTugas:', tugasData.jenisTugas);
+    
+    // STRATEGI 1: Gunakan tugasData.soal (format array string)
+    if (tugasData.soal && Array.isArray(tugasData.soal) && tugasData.soal.length > 0) {
+        console.log('✅ Menggunakan format soal array, jumlah:', tugasData.soal.length);
         
-        if (typeof soal === 'string') {
-            const lines = soal.split('\n').filter(line => line.trim());
+        tugasData.soal.forEach((soalItem, index) => {
+            console.log(`Soal ${index + 1}:`, soalItem);
             
-            for (let line of lines) {
-                if (line.match(/^\d+\./) || !line.match(/^[A-D]\./)) {
-                    questionText = line.replace(/^\d+\.\s*/, '').trim();
-                    break;
+            let questionText = '';
+            let options = [];
+            
+            // Cek apakah soalItem adalah string
+            if (typeof soalItem === 'string') {
+                const lines = soalItem.split('\n').filter(line => line.trim());
+                
+                // Cari baris pertama yang berisi pertanyaan
+                for (let line of lines) {
+                    if (!line.match(/^[A-D]\./) && !line.includes('[JAWABAN:')) {
+                        questionText = line.replace(/^\d+\.\s*/, '').trim();
+                        break;
+                    }
+                }
+                
+                // Ambil option (baris yang dimulai dengan A., B., C., D.)
+                options = lines.filter(line => line.match(/^[A-D]\./));
+                
+                // Jika tidak menemukan pertanyaan, ambil baris pertama
+                if (!questionText && lines.length > 0) {
+                    questionText = lines[0].replace(/^\d+\.\s*/, '').trim();
+                }
+            } 
+            // Cek apakah soalItem adalah object
+            else if (typeof soalItem === 'object' && soalItem.pertanyaan) {
+                questionText = soalItem.pertanyaan;
+                options = soalItem.options || [];
+            }
+            
+            // Buat elemen soal
+            const soalDiv = document.createElement('div');
+            soalDiv.className = 'soal-item';
+            soalDiv.id = `soal-${index}`;
+            soalDiv.style.background = 'white';
+            soalDiv.style.borderRadius = '15px';
+            soalDiv.style.padding = '1.5rem';
+            soalDiv.style.marginBottom = '1.5rem';
+            soalDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            
+            if (options.length > 0) {
+                // Soal Pilihan Ganda
+                soalDiv.innerHTML = `
+                    <div class="soal-text" style="margin-bottom: 1rem;">
+                        <strong style="color: #667eea;">Soal ${index + 1}.</strong> 
+                        <span>${escapeHtml(questionText || 'Soal tidak tersedia')}</span>
+                        <span style="display: inline-block; background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; margin-left: 0.5rem;">Pilihan Ganda</span>
+                    </div>
+                    <div class="options" style="margin-left: 1.5rem;">
+                        ${options.map(opt => {
+                            const letter = opt[0];
+                            const text = opt.substring(3).trim();
+                            return `
+                                <label class="option" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; cursor: pointer;">
+                                    <input type="radio" name="soal${index}" value="${letter}" onchange="saveAnswer(${index}, '${letter}')">
+                                    <span><strong>${letter}.</strong> ${escapeHtml(text)}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } else {
+                // Soal Essay
+                soalDiv.style.borderLeft = '4px solid #10b981';
+                soalDiv.innerHTML = `
+                    <div class="soal-text" style="margin-bottom: 1rem;">
+                        <strong style="color: #667eea;">Soal ${index + 1}.</strong> 
+                        <span>${escapeHtml(questionText || 'Soal tidak tersedia')}</span>
+                        <span style="display: inline-block; background: #10b981; color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; margin-left: 0.5rem;">Essay</span>
+                    </div>
+                    <textarea class="essay-textarea" id="essay-${jawabanEssay.length}" rows="6" 
+                        style="width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins', sans-serif; font-size: 0.95rem; resize: vertical; margin-top: 0.5rem;"
+                        placeholder="Tulis jawaban Anda di sini..."
+                        oninput="saveEssayAnswer(${jawabanEssay.length}, this.value)">${jawabanEssay[jawabanEssay.length] || ''}</textarea>
+                `;
+                // Tambahkan ke array jawabanEssay jika belum ada
+                if (jawabanEssay.length <= index) {
+                    jawabanEssay.push('');
                 }
             }
             
-            options = lines.filter(line => line.match(/^[A-D]\./));
-            
-            if (!questionText && lines.length > 0) {
-                questionText = lines[0].trim();
-                options = lines.slice(1).filter(line => line.match(/^[A-D]\./));
-            }
-        } else if (typeof soal === 'object') {
-            questionText = soal.pertanyaan || `Soal ${index + 1}`;
-            options = soal.options || [];
+            container.appendChild(soalDiv);
+        });
+        
+        // Update jumlah soal
+        if (tugasData.jumlahSoal !== container.children.length) {
+            tugasData.jumlahSoal = container.children.length;
         }
         
-        const soalDiv = document.createElement('div');
-        soalDiv.className = 'soal-item';
-        soalDiv.id = `soal-${index}`;
-        
-        soalDiv.innerHTML = `
-            <div class="soal-text">
-                <strong>Soal ${index + 1}.</strong> ${escapeHtml(questionText || 'Soal tidak tersedia')}
-            </div>
-            <div class="options">
-                ${options.map(opt => {
-                    const letter = opt[0];
-                    const text = opt.substring(3).trim();
-                    return `
-                        <label class="option">
-                            <input type="radio" name="soal${index}" value="${letter}"
-                                onchange="saveAnswer(${index}, '${letter}')">
-                            <span><strong>${letter}.</strong> ${escapeHtml(text)}</span>
-                        </label>
-                    `;
-                }).join('')}
-            </div>
-        `;
-        
-        container.appendChild(soalDiv);
-    });
-    
-    if (container.children.length === 0) {
-        container.innerHTML = `
-            <div class="error-message">
-                ⚠️ Format soal tidak valid.<br>
-                Pastikan soal ditulis dengan format:<br>
-                1. Pertanyaan soal<br>
-                A. Jawaban A<br>
-                B. Jawaban B<br>
-                C. Jawaban C<br>
-                D. Jawaban D
-            </div>
-        `;
+        return;
     }
+    
+    // STRATEGI 2: Gunakan tugasData.soalDetail
+    if (tugasData.soalDetail) {
+        console.log('✅ Menggunakan format soalDetail');
+        const soalDetail = tugasData.soalDetail;
+        const jenisTugas = tugasData.jenisTugas || 'pilihan_ganda';
+        let soalCounter = 0;
+        
+        // Tampilkan pilihan ganda
+        if (soalDetail.pilihanGanda && soalDetail.pilihanGanda.length > 0) {
+            soalDetail.pilihanGanda.forEach((soal, idx) => {
+                const soalDiv = document.createElement('div');
+                soalDiv.className = 'soal-item';
+                soalDiv.id = `soal-${soalCounter}`;
+                soalDiv.style.background = 'white';
+                soalDiv.style.borderRadius = '15px';
+                soalDiv.style.padding = '1.5rem';
+                soalDiv.style.marginBottom = '1.5rem';
+                soalDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                
+                soalDiv.innerHTML = `
+                    <div class="soal-text" style="margin-bottom: 1rem;">
+                        <strong style="color: #667eea;">Soal ${soalCounter + 1}.</strong> 
+                        <span>${escapeHtml(soal.pertanyaan || '(Soal tidak tersedia)')}</span>
+                        <span style="display: inline-block; background: #667eea; color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; margin-left: 0.5rem;">Pilihan Ganda</span>
+                    </div>
+                    <div class="options" style="margin-left: 1.5rem;">
+                        ${soal.options.map((opt, optIdx) => {
+                            const letter = String.fromCharCode(65 + optIdx);
+                            return `
+                                <label class="option" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; cursor: pointer;">
+                                    <input type="radio" name="soal${soalCounter}" value="${letter}" onchange="saveAnswer(${soalCounter}, '${letter}')">
+                                    <span><strong>${letter}.</strong> ${escapeHtml(opt)}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(soalDiv);
+                soalCounter++;
+            });
+        }
+        
+        // Tampilkan essay
+        if (soalDetail.esai && soalDetail.esai.length > 0) {
+            soalDetail.esai.forEach((soal, idx) => {
+                const soalDiv = document.createElement('div');
+                soalDiv.className = 'soal-item essay';
+                soalDiv.id = `soal-${soalCounter}`;
+                soalDiv.style.background = '#f8f9fa';
+                soalDiv.style.borderRadius = '15px';
+                soalDiv.style.padding = '1.5rem';
+                soalDiv.style.marginBottom = '1.5rem';
+                soalDiv.style.borderLeft = '4px solid #10b981';
+                
+                soalDiv.innerHTML = `
+                    <div class="soal-text" style="margin-bottom: 1rem;">
+                        <strong style="color: #667eea;">Soal ${soalCounter + 1}.</strong> 
+                        <span>${escapeHtml(soal.pertanyaan || '(Soal tidak tersedia)')}</span>
+                        <span style="display: inline-block; background: #10b981; color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; margin-left: 0.5rem;">Essay</span>
+                        <span style="display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; margin-left: 0.5rem;">📊 Bobot: ${soal.bobot || 10}</span>
+                    </div>
+                    ${soal.petunjuk ? `<div style="background: #e8f5e9; padding: 0.5rem; border-radius: 8px; font-size: 0.8rem; margin-bottom: 0.5rem;">💡 ${escapeHtml(soal.petunjuk)}</div>` : ''}
+                    <textarea class="essay-textarea" id="essay-${idx}" rows="6" 
+                        style="width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 10px; font-family: 'Poppins', sans-serif; font-size: 0.95rem; resize: vertical; margin-top: 0.5rem;"
+                        placeholder="Tulis jawaban Anda di sini..."
+                        oninput="saveEssayAnswer(${idx}, this.value)">${jawabanEssay[idx] || ''}</textarea>
+                `;
+                container.appendChild(soalDiv);
+                soalCounter++;
+            });
+        }
+        
+        // Update jumlah soal
+        tugasData.jumlahSoal = soalCounter;
+        
+        if (container.children.length > 0) return;
+    }
+    
+    // JIKA TIDAK ADA SOAL SAMA SEKALI
+    console.error('❌ Tidak ada soal yang ditemukan!');
+    container.innerHTML = `
+        <div class="error-message" style="text-align: center; padding: 3rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 20px;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+            <h3 style="margin-bottom: 0.5rem;">Tidak Ada Soal untuk Tugas Ini</h3>
+            <p style="margin-bottom: 1rem;">Silakan hubungi guru Anda untuk informasi lebih lanjut.</p>
+            <button class="btn-primary" onclick="window.location.href='/'" style="padding: 0.75rem 1.5rem; border: none; border-radius: 10px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: pointer;">
+                Kembali ke Beranda
+            </button>
+        </div>
+    `;
 }
 
 function createSoalNav() {
     const nav = document.getElementById('soalNav');
     if (!nav) return;
     
-    let buttons = '<div class="nav-buttons">';
-    for (let i = 0; i < tugasData.jumlahSoal; i++) {
-        buttons += `<button class="nav-btn" onclick="scrollToSoal(${i})">${i + 1}</button>`;
+    const totalSoal = tugasData.jumlahSoal || 0;
+    if (totalSoal === 0) {
+        nav.innerHTML = '<div style="text-align: center; padding: 1rem; color: #999;">Tidak ada soal</div>';
+        return;
+    }
+    
+    let buttons = '<div class="nav-buttons" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;">';
+    for (let i = 0; i < totalSoal; i++) {
+        buttons += `<button class="nav-btn" onclick="scrollToSoal(${i})" style="background: #e9ecef; border: none; padding: 0.75rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">${i + 1}</button>`;
     }
     buttons += '</div>';
     nav.innerHTML = buttons;
@@ -246,10 +383,25 @@ function createSoalNav() {
 function updateNavButtons() {
     const buttons = document.querySelectorAll('.nav-btn');
     buttons.forEach((btn, index) => {
-        if (jawaban && jawaban[index] !== null && jawaban[index] !== undefined) {
+        let isAnswered = false;
+        
+        if (index < jawaban.length && jawaban[index] !== null && jawaban[index] !== undefined) {
+            isAnswered = true;
+        }
+        
+        const essayIndex = index - jawaban.length;
+        if (essayIndex >= 0 && essayIndex < jawabanEssay.length && jawabanEssay[essayIndex] && jawabanEssay[essayIndex].trim() !== '') {
+            isAnswered = true;
+        }
+        
+        if (isAnswered) {
             btn.classList.add('answered');
+            btn.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
+            btn.style.color = 'white';
         } else {
             btn.classList.remove('answered');
+            btn.style.background = '#e9ecef';
+            btn.style.color = '#333';
         }
     });
 }
@@ -260,8 +412,24 @@ function saveAnswer(soalIndex, jawabanValue) {
     }
     jawaban[soalIndex] = jawabanValue;
     updateNavButtons();
-    
-    localStorage.setItem(`jawaban_${tugasId}_${studentData.nis}`, JSON.stringify(jawaban));
+    saveToLocalStorage();
+}
+
+function saveEssayAnswer(essayIndex, value) {
+    if (!jawabanEssay) {
+        jawabanEssay = [];
+    }
+    jawabanEssay[essayIndex] = value;
+    updateNavButtons();
+    saveToLocalStorage();
+}
+
+function saveToLocalStorage() {
+    const saveData = {
+        jawaban: jawaban,
+        jawabanEssay: jawabanEssay
+    };
+    localStorage.setItem(`jawaban_${tugasId}_${studentData.nis}`, JSON.stringify(saveData));
 }
 
 function scrollToSoal(index) {
@@ -274,48 +442,62 @@ function scrollToSoal(index) {
 async function submitUjian() {
     if (timer) clearInterval(timer);
     
-    // Calculate score
     let benar = 0;
     let jawabanDetail = [];
+    const soalDetail = tugasData.soalDetail;
+    const jenisTugas = tugasData.jenisTugas || 'pilihan_ganda';
     
-    if (jawaban) {
-        jawaban.forEach((jawab, index) => {
-            if (jawab && tugasData.soal[index]) {
-                const soalText = tugasData.soal[index];
-                let correctAnswer = null;
-                let questionText = '';
-                
-                if (typeof soalText === 'string') {
-                    const lines = soalText.split('\n');
-                    questionText = lines[0].replace(/^\d+\.\s*/, '').trim();
+    // Proses nilai pilihan ganda dari tugasData.soal
+    if (tugasData.soal && Array.isArray(tugasData.soal) && tugasData.soal.length > 0) {
+        for (let i = 0; i < tugasData.soal.length; i++) {
+            const soalItem = tugasData.soal[i];
+            let correctAnswer = null;
+            let questionText = '';
+            
+            if (typeof soalItem === 'string') {
+                const lines = soalItem.split('\n');
+                // Cari jawaban benar
+                for (let line of lines) {
+                    if (line.includes('[JAWABAN:')) {
+                        const match = line.match(/\[JAWABAN:\s*([A-D])\]/);
+                        if (match) correctAnswer = match[1];
+                    }
+                    if (!line.match(/^[A-D]\./) && !line.includes('[JAWABAN:')) {
+                        questionText = line.replace(/^\d+\.\s*/, '').trim();
+                    }
+                }
+                // Jika tidak ada [JAWABAN], cari dari option (A. xxx)
+                if (!correctAnswer) {
                     for (let line of lines) {
                         if (line.match(/^[A-D]\./)) {
                             correctAnswer = line[0];
                             break;
                         }
                     }
-                } else if (typeof soalText === 'object' && soalText.jawabanBenar) {
-                    // Jika menggunakan format soal detail dengan jawaban benar
-                    correctAnswer = soalText.jawabanBenar;
-                    questionText = soalText.pertanyaan;
                 }
-                
-                const isCorrect = (jawab === correctAnswer);
-                if (isCorrect) benar++;
-                
-                jawabanDetail.push({
-                    nomor: index + 1,
-                    soal: questionText,
-                    jawabanSiswa: jawab,
-                    jawabanBenar: correctAnswer,
-                    status: isCorrect
-                });
+            } else if (typeof soalItem === 'object' && soalItem.jawabanBenar) {
+                correctAnswer = soalItem.jawabanBenar;
+                questionText = soalItem.pertanyaan;
             }
-        });
+            
+            const jawab = jawaban[i];
+            const isCorrect = (jawab === correctAnswer);
+            if (isCorrect) benar++;
+            
+            jawabanDetail.push({
+                nomor: i + 1,
+                tipe: 'PG',
+                soal: questionText,
+                jawabanSiswa: jawab || '-',
+                jawabanBenar: correctAnswer,
+                status: isCorrect
+            });
+        }
     }
     
-    const nilai = Math.round((benar / tugasData.jumlahSoal) * 100);
-    const status = nilai >= 70 ? 'LULUS' : 'TIDAK LULUS';
+    const totalSoalPG = tugasData.soal?.length || 0;
+    const nilaiPG = totalSoalPG > 0 ? Math.round((benar / totalSoalPG) * 100) : null;
+    const status = (nilaiPG !== null && nilaiPG >= 70) ? 'LULUS' : (totalSoalPG > 0 ? 'TIDAK LULUS' : 'PENDING');
     
     hasilUjian = {
         siswa: {
@@ -327,14 +509,15 @@ async function submitUjian() {
             judul: tugasData.judul,
             mapel: tugasData.mapel,
             namaGuru: tugasData.namaGuru || '-',
-            tanggal: new Date().toLocaleString('id-ID')
+            tanggal: new Date().toLocaleString('id-ID'),
+            jenisTugas: jenisTugas
         },
         hasil: {
-            nilai: nilai,
+            nilaiPG: nilaiPG,
             benar: benar,
-            total: tugasData.jumlahSoal,
+            totalPG: totalSoalPG,
             status: status,
-            persentase: Math.round((benar / tugasData.jumlahSoal) * 100)
+            persentase: nilaiPG !== null ? Math.round((benar / totalSoalPG) * 100) : null
         },
         jawabanDetail: jawabanDetail
     };
@@ -345,10 +528,12 @@ async function submitUjian() {
         nis: studentData.nis,
         kelas: studentData.kelas,
         jawaban: jawaban || [],
-        nilai: nilai,
+        jawabanEssay: jawabanEssay || [],
+        nilai: nilaiPG || 0,
         benar: benar,
-        total: tugasData.jumlahSoal,
-        jawabanDetail: jawabanDetail
+        total: totalSoalPG,
+        jawabanDetail: jawabanDetail,
+        jenisTugas: jenisTugas
     };
     
     try {
@@ -359,8 +544,6 @@ async function submitUjian() {
         });
         
         localStorage.removeItem(`jawaban_${tugasId}_${studentData.nis}`);
-        
-        // Tampilkan modal hasil
         tampilkanHasilUjian();
         
     } catch (error) {
@@ -375,94 +558,52 @@ function tampilkanHasilUjian() {
     
     if (!hasilUjian) return;
     
-    const statusClass = hasilUjian.hasil.status === 'LULUS' ? 'status-lulus' : 'status-gagal';
-    const statusIcon = hasilUjian.hasil.status === 'LULUS' ? '🎉' : '😔';
-    
-    hasilBody.innerHTML = `
-        <div class="hasil-container">
-            <div class="hasil-header">
-                <div class="hasil-icon">${statusIcon}</div>
-                <h2>${hasilUjian.hasil.status}</h2>
+    let html = `
+        <div class="hasil-container" style="padding: 1rem;">
+            <div class="hasil-header" style="text-align: center; margin-bottom: 2rem;">
+                <div class="hasil-icon" style="font-size: 3rem;">📝</div>
+                <h2 style="margin-top: 0.5rem;">Hasil Ujian</h2>
             </div>
             
-            <div class="hasil-skor">
-                <div class="skor-circle">
-                    <span class="skor-nilai">${hasilUjian.hasil.nilai}</span>
-                    <span class="skor-label">Nilai</span>
-                </div>
-            </div>
-            
-            <div class="hasil-info">
-                <div class="info-row">
-                    <span class="info-label">Nama Siswa:</span>
+            <div class="hasil-info" style="background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                <div class="info-row" style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #eee;">
+                    <span class="info-label" style="font-weight: 600;">Nama Siswa:</span>
                     <span class="info-value">${escapeHtml(hasilUjian.siswa.nama)}</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">NIS:</span>
+                <div class="info-row" style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #eee;">
+                    <span class="info-label" style="font-weight: 600;">NIS:</span>
                     <span class="info-value">${escapeHtml(hasilUjian.siswa.nis)}</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Kelas:</span>
+                <div class="info-row" style="display: flex; justify-content: space-between; padding: 0.5rem;">
+                    <span class="info-label" style="font-weight: 600;">Kelas:</span>
                     <span class="info-value">${escapeHtml(hasilUjian.siswa.kelas)}</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Mata Pelajaran:</span>
-                    <span class="info-value">${escapeHtml(hasilUjian.tugas.mapel)}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Nama Guru:</span>
-                    <span class="info-value">${escapeHtml(hasilUjian.tugas.namaGuru || '-')}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Judul Tugas:</span>
-                    <span class="info-value">${escapeHtml(hasilUjian.tugas.judul)}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Tanggal:</span>
-                    <span class="info-value">${hasilUjian.tugas.tanggal}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Jumlah Benar:</span>
-                    <span class="info-value">${hasilUjian.hasil.benar} dari ${hasilUjian.hasil.total}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Persentase:</span>
-                    <span class="info-value">${hasilUjian.hasil.persentase}%</span>
-                </div>
             </div>
-            
-            <div class="hasil-detail">
-                <h3>📝 Detail Jawaban</h3>
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Soal</th>
-                            <th>Jawaban</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${hasilUjian.jawabanDetail.map(detail => `
-                            <tr>
-                                <td>${detail.nomor}</td>
-                                <td>${escapeHtml(detail.soal ? detail.soal.substring(0, 50) : '-')}${detail.soal && detail.soal.length > 50 ? '...' : ''}</td>
-                                <td>${detail.jawabanSiswa || '-'}</td>
-                                <td class="${detail.status ? 'status-benar' : 'status-salah'}">
-                                    ${detail.status ? '✅ Benar' : '❌ Salah'}
-                                 </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+    `;
+    
+    if (hasilUjian.hasil.nilaiPG !== null) {
+        html += `
+            <div class="hasil-skor" style="text-align: center; margin: 1.5rem 0;">
+                <div class="skor-circle" style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                    <span class="skor-nilai" style="font-size: 2rem; font-weight: bold;">${hasilUjian.hasil.nilaiPG}</span>
+                    <span class="skor-label" style="font-size: 0.8rem;">Nilai</span>
+                </div>
+                <p style="margin-top: 0.5rem;">Benar: ${hasilUjian.hasil.benar} dari ${hasilUjian.hasil.totalPG} soal</p>
+            </div>
+        `;
+    }
+    
+    html += `
+            <div class="hasil-footer" style="margin-top: 1.5rem; padding: 1rem; background: #e3f2fd; border-radius: 10px; text-align: center;">
+                <p style="margin: 0;">✅ Ujian telah selesai. Nilai akan disimpan.</p>
             </div>
         </div>
     `;
     
+    hasilBody.innerHTML = html;
     modal.style.display = 'flex';
 }
 
-// Helper function
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -471,149 +612,13 @@ function escapeHtml(text) {
 }
 
 function cetakBukti() {
-    const hasilBody = document.getElementById('hasilBody');
-    const originalContent = hasilBody.innerHTML;
-    
-    // Buat frame untuk print
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Bukti Hasil Ujian - ${hasilUjian.siswa.nama}</title>
-            <style>
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                body {
-                    font-family: 'Poppins', Arial, sans-serif;
-                    padding: 40px;
-                    background: white;
-                }
-                .print-container {
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
-                .header {
-                    text-align: center;
-                    margin-bottom: 30px;
-                    padding-bottom: 20px;
-                    border-bottom: 2px solid #667eea;
-                }
-                .header h1 {
-                    color: #667eea;
-                    margin-bottom: 10px;
-                }
-                .header p {
-                    color: #666;
-                }
-                .hasil-skor {
-                    text-align: center;
-                    margin: 30px 0;
-                }
-                .skor-circle {
-                    width: 150px;
-                    height: 150px;
-                    border-radius: 50%;
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    display: inline-flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                }
-                .skor-nilai {
-                    font-size: 48px;
-                    font-weight: bold;
-                }
-                .skor-label {
-                    font-size: 14px;
-                }
-                .info-row {
-                    display: flex;
-                    justify-content: space-between;
-                    padding: 10px;
-                    border-bottom: 1px solid #eee;
-                }
-                .info-label {
-                    font-weight: 600;
-                    color: #333;
-                }
-                .info-value {
-                    color: #666;
-                }
-                .detail-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin-top: 20px;
-                }
-                .detail-table th,
-                .detail-table td {
-                    padding: 10px;
-                    text-align: left;
-                    border-bottom: 1px solid #ddd;
-                }
-                .detail-table th {
-                    background: #f8f9fa;
-                    font-weight: 600;
-                }
-                .status-benar {
-                    color: #4caf50;
-                    font-weight: 600;
-                }
-                .status-salah {
-                    color: #f44336;
-                    font-weight: 600;
-                }
-                .footer {
-                    text-align: center;
-                    margin-top: 40px;
-                    padding-top: 20px;
-                    border-top: 1px solid #eee;
-                    font-size: 12px;
-                    color: #999;
-                }
-                @media print {
-                    body {
-                        padding: 20px;
-                    }
-                    .no-print {
-                        display: none;
-                    }
-                }
-            </style>
-        </head>
-        <body>
-            <div class="print-container">
-                <div class="header">
-                    <h1>📄 BUKTI HASIL UJIAN</h1>
-                    <p>Ruang Ujian Online</p>
-                </div>
-                ${originalContent}
-                <div class="footer">
-                    <p>Dicetak pada: ${new Date().toLocaleString('id-ID')}</p>
-                    <p>Bukti ini adalah dokumen resmi dari Ruang Ujian Online</p>
-                </div>
-            </div>
-            <script>
-                window.onload = function() {
-                    window.print();
-                    setTimeout(function() {
-                        window.close();
-                    }, 500);
-                }
-            </script>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
+    window.print();
 }
 
 function closeHasilModal() {
     const modal = document.getElementById('hasilModal');
-    modal.style.display = 'none';
+    if (modal) modal.style.display = 'none';
+    window.location.href = '/';
 }
 
 function kembaliKeBeranda() {
