@@ -539,6 +539,7 @@ function convertSoalToText() {
 }
 
 // Load template soal (dengan jawaban benar preset)
+// Load template soal (dengan jawaban benar preset)
 function loadTemplate(template) {
     const templates = {
         matematika: [
@@ -562,10 +563,52 @@ function loadTemplate(template) {
             { pertanyaan: "What is the meaning of 'Book'?", options: ["Buku", "Pensil", "Meja", "Kursi"], jawabanBenar: "A" },
             { pertanyaan: "How do you say 'Selamat pagi' in English?", options: ["Good Night", "Good Evening", "Good Afternoon", "Good Morning"], jawabanBenar: "D" },
             { pertanyaan: "The opposite of 'big' is...", options: ["Large", "Small", "Tall", "Wide"], jawabanBenar: "B" }
+        ],
+        // Template Web Programming
+        webprog: [
+            { pertanyaan: "Apa kepanjangan dari HTML?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyper Transfer Markup Language", "Home Tool Markup Language"], jawabanBenar: "A" },
+            { pertanyaan: "CSS digunakan untuk...", options: ["Mengatur struktur website", "Mengatur tampilan website", "Membuat database", "Mengelola server"], jawabanBenar: "B" },
+            { pertanyaan: "JavaScript adalah bahasa pemrograman yang berjalan di...", options: ["Server", "Database", "Browser", "Compiler"], jawabanBenar: "C" },
+            { pertanyaan: "Framework JavaScript yang populer adalah...", options: ["Laravel", "Django", "React", "Spring"], jawabanBenar: "C" },
+            { pertanyaan: "Apa fungsi dari tag <a> dalam HTML?", options: ["Membuat gambar", "Membuat link", "Membuat paragraf", "Membuat heading"], jawabanBenar: "B" }
+        ],
+        // Template PPKN
+        ppkn: [
+            { pertanyaan: "Pancasila sebagai dasar negara terdiri dari... sila", options: ["3", "4", "5", "6"], jawabanBenar: "C" },
+            { pertanyaan: "Sila pertama Pancasila adalah...", options: ["Kemanusiaan", "Persatuan", "Kerakyatan", "Ketuhanan"], jawabanBenar: "D" },
+            { pertanyaan: "Bendera negara Indonesia adalah...", options: ["Merah Putih", "Merah Biru", "Putih Hitam", "Kuning Merah"], jawabanBenar: "A" },
+            { pertanyaan: "Lambang negara Indonesia adalah...", options: ["Garuda", "Burung Hantu", "Elang", "Rajawali"], jawabanBenar: "A" },
+            { pertanyaan: "Semboyan bangsa Indonesia adalah...", options: ["Bhinneka Tunggal Ika", "Bersatu Kita Teguh", "Merdeka atau Mati", "Sekali Layar Terkembang"], jawabanBenar: "A" }
+        ],
+        // Template Biologi
+        biologi: [
+            { pertanyaan: "Organ pernapasan manusia adalah...", options: ["Jantung", "Paru-paru", "Lambung", "Hati"], jawabanBenar: "B" },
+            { pertanyaan: "Proses pembuatan makanan pada tumbuhan disebut...", options: ["Fotosintesis", "Respirasi", "Transpirasi", "Fermentasi"], jawabanBenar: "A" },
+            { pertanyaan: "Sel tumbuhan memiliki dinding sel yang terbuat dari...", options: ["Protein", "Lipid", "Selulosa", "Karbohidrat"], jawabanBenar: "C" },
+            { pertanyaan: "Alat gerak aktif pada manusia adalah...", options: ["Tulang", "Otot", "Sendi", "Ligamen"], jawabanBenar: "B" },
+            { pertanyaan: "Sistem peredaran darah manusia disebut juga...", options: ["Sistem respirasi", "Sistem sirkulasi", "Sistem ekskresi", "Sistem pencernaan"], jawabanBenar: "B" }
         ]
     };
     
-    const selectedTemplate = templates[template] || templates.matematika;
+    // Mapping untuk template ID ke nama template yang benar
+    const templateMap = {
+        'matematika': 'matematika',
+        'ipa': 'ipa',
+        'bahasa': 'bahasa',
+        'inggris': 'inggris',
+        'webprog': 'webprog',
+        'ppkn': 'ppkn',
+        'biologi': 'biologi'
+    };
+    
+    const templateKey = templateMap[template] || 'matematika';
+    const selectedTemplate = templates[templateKey];
+    
+    if (!selectedTemplate) {
+        alert('❌ Template tidak ditemukan!');
+        return;
+    }
+    
     soalItems = selectedTemplate.map((item, idx) => ({
         nomor: idx + 1,
         pertanyaan: item.pertanyaan,
@@ -575,63 +618,6 @@ function loadTemplate(template) {
     renderSoalEditor();
     alert(`✅ Template ${template} berhasil dimuat! ${soalItems.length} soal siap digunakan.`);
 }
-
-// Submit tugas dengan format baru (termasuk jawaban benar)
-if (document.getElementById('tugasForm')) {
-    document.getElementById('tugasForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        if (!validateSoal()) return;
-        
-        const namaGuru = document.getElementById('namaGuru').value;
-        if (!namaGuru || namaGuru.trim() === '') {
-            alert('❌ Nama Guru harus diisi!');
-            return;
-        }
-        
-        const soalText = convertSoalToText();
-        
-        const soalWithAnswers = soalItems.map(soal => ({
-            pertanyaan: soal.pertanyaan,
-            options: soal.options,
-            jawabanBenar: soal.jawabanBenar
-        }));
-        
-        const tugasData = {
-            judul: document.getElementById('judul').value,
-            mapel: document.getElementById('mapel').value,
-            namaGuru: namaGuru.trim(),
-            deskripsi: document.getElementById('deskripsi').value,
-            waktu: parseInt(document.getElementById('waktu').value),
-            jumlahSoal: soalItems.length,
-            soal: soalText.split('\n\n'),
-            soalDetail: soalWithAnswers
-        };
-        
-        try {
-            const response = await fetch('/api/tugas', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tugasData)
-            });
-            
-            if (response.ok) {
-                alert(`✅ Tugas berhasil diupload!\n📝 Jumlah soal: ${soalItems.length}\n✅ Semua soal memiliki kunci jawaban`);
-                document.getElementById('tugasForm').reset();
-                initSoalEditor(1);
-                loadTugasList();
-                loadStats();
-                loadJawaban();
-            } else {
-                alert('❌ Gagal mengupload tugas');
-            }
-        } catch (error) {
-            console.error('Error uploading tugas:', error);
-            alert('❌ Gagal mengupload tugas');
-        }
-    });
-}
-
 // ==================== JADWAL UJIAN ====================
 
 // Load tugas untuk dropdown jadwal
