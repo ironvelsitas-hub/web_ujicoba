@@ -400,5 +400,64 @@
       }
     ],
     "waktuSubmit": "2026-05-22T13:27:55.392Z"
+  },
+  {
+    "id": 1779508929689,
+    "tugasId": 1779458426505,
+    "nama": "andre",
+    "nis": "4569875",
+    "kelas": "XII IPA 1",
+    "jawaban": [
+      "A",
+      "B"
+    ],
+    "nilai": 50,
+    "benar": 1,
+    "total": 2,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "soal": "siapa nama presiden pertama indonesia?",
+        "jawabanSiswa": "A",
+        "jawabanBenar": "A",
+        "status": true
+      },
+      {
+        "nomor": 2,
+        "soal": "dasar NKRI adalah ?",
+        "jawabanSiswa": "B",
+        "jawabanBenar": "A",
+        "status": false
+      }
+    ],
+    "waktuSubmit": "2026-05-23T04:02:09.689Z"
+  },
+  {
+    "id": 1779523675771,
+    "tugasId": 1779523281685,
+    "nama": "iron",
+    "nis": "1131313",
+    "kelas": "XII IPA 1",
+    "jawaban": [
+      null
+    ],
+    "jawabanEssay": [
+      "HTML (HyperText Markup Language) adalah bahasa markup standar untuk membuat struktur halaman web. HTML bekerja dengan menggunakan tag dan atribut untuk memberi tahu browser bagaimana menampilkan konten seperti teks, gambar, tautan, tabel, hingga formulir interaktif.\n\nStruktur dasar HTML terdiri dari:\n\n<html> sebagai elemen utama.\n\n<head> untuk metadata, judul, dan link ke file CSS/JS.\n\n<body> untuk semua konten yang terlihat di halaman.\n\nContoh struktur minimal:\n\n<!DOCTYPE html>\n<html lang=\"id\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Contoh HTML</title>\n</head>\n<body>\n<h1>Halo Dunia!</h1>\n<p>Ini adalah paragraf pertama saya.</p>\n</body>\n</html>\nSalin\nPenggunaan umum HTML meliputi:\n\nTeks dan heading: <p>, <h1>–<h6>.\n\nTautan: <a href=\"url\">Teks Link</a>.\n\nGambar: <img src=\"gambar.jpg\" alt=\"Deskripsi\">.\n\nList: <ul>/<ol> dengan <li>.\n\nTabel: <table>, <tr>, <td>.\n\nFormulir: <form>, <input>, <textarea>, <button>.\n\nAtribut HTML memberikan informasi tambahan pada elemen, misalnya:\n\nhref pada <a> untuk menentukan tujuan link.\n\nsrc pada <img> untuk lokasi file gambar.\n\nalt pada <img> untuk teks alternatif.\n\nContoh penggunaan atribut:\n\n<a href=\"https://example.com\" target=\"_blank\">Kunjungi Situs</a>\n<img src=\"foto.jpg\" alt=\"Foto Pemandangan\">\nSalin\nHTML5 menambahkan elemen semantik seperti <header>, <footer>, <article>, <section> yang membantu struktur konten lebih jelas untuk SEO dan aksesibilitas.\n\nTips penggunaan HTML yang baik:\n\nGunakan struktur semantik untuk meningkatkan keterbacaan kode.\n\nSelalu sertakan atribut alt pada gambar untuk aksesibilitas.\n\nPisahkan konten (HTML), tampilan (CSS), dan interaktivitas (JavaScript) untuk pemeliharaan yang lebih mudah.\n\nValidasi kode HTML menggunakan W3C Validator untuk memastikan kompatibilitas browser.\n\nDengan memahami penggunaan HTML secara benar, Anda dapat membangun halaman web yang terstruktur, responsif, dan ramah pengguna."
+    ],
+    "nilai": 100,
+    "benar": 1,
+    "total": 1,
+    "jawabanDetail": [
+      {
+        "nomor": 1,
+        "tipe": "PG",
+        "soal": "[PETUNJUK: 500]",
+        "jawabanSiswa": "-",
+        "jawabanBenar": null,
+        "status": true
+      }
+    ],
+    "jenisTugas": "esai",
+    "waktuSubmit": "2026-05-23T08:07:55.771Z"
   }
 ]

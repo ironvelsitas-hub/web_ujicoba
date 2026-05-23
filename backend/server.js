@@ -19,6 +19,7 @@ const TUGAS_FILE = path.join(DATA_DIR, 'tugas.json');
 const JAWABAN_FILE = path.join(DATA_DIR, 'jawaban.json');
 const PENGUMUMAN_FILE = path.join(DATA_DIR, 'pengumuman.json');
 const JADWAL_FILE = path.join(DATA_DIR, 'jadwal.json');
+const ROOM_FILE = path.join(DATA_DIR, 'rooms.json');
 
 // Pastikan folder data ada
 if (!fs.existsSync(DATA_DIR)) {
@@ -37,6 +38,9 @@ if (!fs.existsSync(PENGUMUMAN_FILE)) {
 }
 if (!fs.existsSync(JADWAL_FILE)) {
   fs.writeFileSync(JADWAL_FILE, JSON.stringify([]));
+}
+if (!fs.existsSync(ROOM_FILE)) {
+  fs.writeFileSync(ROOM_FILE, JSON.stringify([]));
 }
 
 // ==================== ROUTES TUGAS ====================
@@ -228,6 +232,100 @@ app.delete('/api/jadwal/:id', (req, res) => {
   }
 });
 
+// ==================== ROUTES ROOM ZOOM ====================
+
+// Get all rooms
+app.get('/api/rooms', (req, res) => {
+  try {
+    const rooms = JSON.parse(fs.readFileSync(ROOM_FILE, 'utf-8'));
+    res.json(rooms);
+  } catch (error) {
+    res.json([]);
+  }
+});
+
+// Get room by ID
+app.get('/api/rooms/:id', (req, res) => {
+  try {
+    const rooms = JSON.parse(fs.readFileSync(ROOM_FILE, 'utf-8'));
+    const room = rooms.find(r => r.id == req.params.id);
+    res.json(room || null);
+  } catch (error) {
+    res.json(null);
+  }
+});
+
+// Create new room
+app.post('/api/rooms', (req, res) => {
+  try {
+    const rooms = JSON.parse(fs.readFileSync(ROOM_FILE, 'utf-8'));
+    const newRoom = {
+      id: Date.now(),
+      roomId: generateRoomId(),
+      ...req.body,
+      createdAt: new Date().toISOString(),
+      participants: [],
+      isActive: true
+    };
+    rooms.push(newRoom);
+    fs.writeFileSync(ROOM_FILE, JSON.stringify(rooms, null, 2));
+    res.json({ success: true, room: newRoom });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Join room
+app.post('/api/rooms/join/:roomId', (req, res) => {
+  try {
+    const rooms = JSON.parse(fs.readFileSync(ROOM_FILE, 'utf-8'));
+    const room = rooms.find(r => r.roomId === req.params.roomId);
+    
+    if (!room) {
+      return res.status(404).json({ error: 'Room tidak ditemukan' });
+    }
+    
+    if (!room.isActive) {
+      return res.status(403).json({ error: 'Room sudah ditutup' });
+    }
+    
+    const participant = {
+      name: req.body.name,
+      joinedAt: new Date().toISOString()
+    };
+    
+    if (!room.participants) room.participants = [];
+    room.participants.push(participant);
+    
+    fs.writeFileSync(ROOM_FILE, JSON.stringify(rooms, null, 2));
+    res.json({ success: true, room });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Close room
+app.delete('/api/rooms/:id', (req, res) => {
+  try {
+    const rooms = JSON.parse(fs.readFileSync(ROOM_FILE, 'utf-8'));
+    const filtered = rooms.filter(r => r.id != req.params.id);
+    fs.writeFileSync(ROOM_FILE, JSON.stringify(filtered, null, 2));
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate random room ID
+function generateRoomId() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 // ==================== STATIC FILES & ROUTING ====================
 // Serve static files dari folder frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -288,6 +386,11 @@ app.listen(PORT, () => {
   console.log(`   - GET  /api/jadwal/tugas/:tugasId`);
   console.log(`   - POST /api/jadwal`);
   console.log(`   - DELETE /api/jadwal/:id`);
+  console.log(`   - GET  /api/rooms`);
+  console.log(`   - GET  /api/rooms/:id`);
+  console.log(`   - POST /api/rooms`);
+  console.log(`   - POST /api/rooms/join/:roomId`);
+  console.log(`   - DELETE /api/rooms/:id`);
   console.log(`\n🌐 Frontend: http://localhost:${PORT}`);
 });
 

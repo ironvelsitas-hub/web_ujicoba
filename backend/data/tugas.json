@@ -226,5 +226,70 @@
       }
     ],
     "tanggal": "2026-05-22T14:00:26.505Z"
+  },
+  {
+    "id": 1779520993497,
+    "judul": "latihan BAB 1",
+    "mapel": "PPKN",
+    "namaGuru": "Agutinus.s.pd",
+    "deskripsi": "tolong di kerjakan ya",
+    "waktu": 60,
+    "jumlahSoal": 3,
+    "jenisTugas": "esai",
+    "soal": [
+      "[ESAI] 1.sebutkan dan jelaskan NORMA\n[BOBOT: 10]",
+      "[ESAI] 2. BPUPKI adalah?",
+      "[BOBOT: 10]",
+      "[ESAI] 3. jelaskan apa yang di maksud dengan konstitusi\n[BOBOT: 10]\n[PETUNJUK: 500]"
+    ],
+    "soalDetail": {
+      "tipe": "esai",
+      "soal": [
+        {
+          "nomor": 1,
+          "pertanyaan": "1.sebutkan dan jelaskan NORMA",
+          "bobot": 10,
+          "petunjuk": ""
+        },
+        {
+          "nomor": 2,
+          "pertanyaan": "2. BPUPKI adalah?\n",
+          "bobot": 10,
+          "petunjuk": ""
+        },
+        {
+          "nomor": 3,
+          "pertanyaan": "3. jelaskan apa yang di maksud dengan konstitusi",
+          "bobot": 10,
+          "petunjuk": "500"
+        }
+      ]
+    },
+    "tanggal": "2026-05-23T07:23:13.497Z"
+  },
+  {
+    "id": 1779523281685,
+    "judul": "html",
+    "mapel": "web progamming",
+    "namaGuru": "agustinus",
+    "deskripsi": "jelaskan apa itu HTML",
+    "waktu": 25,
+    "jumlahSoal": 1,
+    "jenisTugas": "esai",
+    "soal": [
+      "[ESAI] jelaskan apa itu HTML\n[BOBOT: 10]\n[PETUNJUK: 500]"
+    ],
+    "soalDetail": {
+      "tipe": "esai",
+      "soal": [
+        {
+          "nomor": 1,
+          "pertanyaan": "jelaskan apa itu HTML",
+          "bobot": 10,
+          "petunjuk": "500"
+        }
+      ]
+    },
+    "tanggal": "2026-05-23T08:01:21.685Z"
   }
 ]

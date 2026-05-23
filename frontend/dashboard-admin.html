@@ -28,7 +28,7 @@
     <div class="dashboard-container">
         <div class="dashboard-header">
             <h1>Dashboard Guru</h1>
-            <p>Kelola ujian, tugas, pengumuman, jadwal, dan lihat hasil siswa</p>
+            <p>Kelola ujian, tugas, pengumuman, jadwal, room zoom, dan lihat hasil siswa</p>
         </div>
 
         <!-- Stats Cards -->
@@ -68,6 +68,7 @@
             <button class="tab-btn active" data-tab="tugas">📤 Upload Tugas</button>
             <button class="tab-btn" data-tab="daftar-tugas">📋 Daftar Tugas</button>
             <button class="tab-btn" data-tab="jadwal">📅 Jadwal Ujian</button>
+            <button class="tab-btn" data-tab="zoom">🎥 Room Zoom</button>
             <button class="tab-btn" data-tab="pengumuman">📢 Buat Pengumuman</button>
             <button class="tab-btn" data-tab="daftar-pengumuman">📋 Daftar Pengumuman</button>
             <button class="tab-btn" data-tab="hasil">📊 Hasil Ujian</button>
@@ -231,6 +232,49 @@
             </div>
         </div>
 
+        <!-- Tab Content: Room Zoom -->
+        <div id="tab-zoom" class="tab-content">
+            <div class="card form-card">
+                <h2>🎥 Buat Room Zoom Internal</h2>
+                <form id="zoomForm">
+                    <div class="form-group">
+                        <label>Judul Meeting</label>
+                        <input type="text" id="meetingTitle" required placeholder="Contoh: Belajar Matematika">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi</label>
+                        <textarea id="meetingDesc" rows="3" placeholder="Jelaskan tentang meeting ini..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="meetingDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jam Mulai</label>
+                            <input type="time" id="meetingStart" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Jam Selesai</label>
+                            <input type="time" id="meetingEnd" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mata Pelajaran</label>
+                            <input type="text" id="meetingMapel" placeholder="Contoh: Matematika">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">🎥 Buat Room Zoom</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>📋 Daftar Room Zoom Aktif</h2>
+                <div class="zoom-rooms-list" id="zoomRoomsList"></div>
+            </div>
+        </div>
+
         <!-- Tab Content: Buat Pengumuman -->
         <div id="tab-pengumuman" class="tab-content">
             <div class="card form-card">
@@ -302,5 +346,6 @@
     </div>
 
     <script src="/js/dashboard-admin.js"></script>
+    <script src="/js/zoom.js"></script>
 </body>
 </html>

@@ -68,6 +68,17 @@
         </div>
     </div>
 
+    <!-- Zoom Meeting Section -->
+    <div class="zoom-meeting-section">
+        <div class="section-header">
+            <h2>🎥 Zoom Meeting Aktif</h2>
+            <p>Bergabung dengan kelas virtual secara langsung</p>
+        </div>
+        <div class="zoom-rooms-grid" id="zoomRoomsGrid">
+            <div class="loading-spinner">Memuat meeting...</div>
+        </div>
+    </div>
+
     <!-- Latest Pengumuman Section -->
     <div class="latest-pengumuman" id="latestPengumuman"></div>
 
@@ -117,6 +128,62 @@
         </div>
     </div>
 
+    <!-- Modal Zoom Room -->
+    <div class="modal" id="zoomModal">
+        <div class="modal-content modal-zoom">
+            <div class="modal-header">
+                <h3>🎥 Zoom Meeting Room</h3>
+                <button class="modal-close" onclick="closeZoomModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="zoomBody">
+                <div id="zoomVideoContainer">
+                    <div class="video-container">
+                        <div class="local-video" id="localVideo">
+                            <video id="localVideoElement" autoplay muted playsinline></video>
+                            <div class="video-label">Anda</div>
+                        </div>
+                        <div class="remote-videos" id="remoteVideos"></div>
+                    </div>
+                    <div class="zoom-controls">
+                        <button onclick="toggleMute()" id="muteBtn" class="zoom-control">🎤 Mute</button>
+                        <button onclick="toggleVideo()" id="videoBtn" class="zoom-control">📹 Stop Video</button>
+                        <button onclick="shareScreen()" class="zoom-control">🖥️ Share Screen</button>
+                        <button onclick="leaveZoomRoom()" class="zoom-control leave">🚪 Leave</button>
+                    </div>
+                    <div class="zoom-chat" id="zoomChat">
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Ketik pesan...">
+                            <button onclick="sendChatMessage()">Kirim</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Join Zoom -->
+    <div class="modal" id="joinZoomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔑 Masukkan Kode Room</h3>
+                <button class="modal-close" onclick="closeJoinZoomModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Kode Room</label>
+                    <input type="text" id="roomCode" placeholder="Contoh: ABC123" required>
+                </div>
+                <div class="form-group">
+                    <label>Nama Anda</label>
+                    <input type="text" id="participantName" placeholder="Masukkan nama Anda" required>
+                </div>
+                <button class="btn-primary" onclick="joinRoom()">Join Room →</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/main.js"></script>
+    <script src="/js/zoom.js"></script>
 </body>
 </html>

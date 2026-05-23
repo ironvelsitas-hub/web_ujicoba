@@ -84,7 +84,6 @@ async function loadTugasList() {
             </div>
         `).join('');
         
-        // Update filter dropdown
         if (filterTugas) {
             filterTugas.innerHTML = '<option value="">Semua Tugas</option>' + 
                 tugas.map(t => `<option value="${t.id}">${escapeHtml(t.judul)} - ${escapeHtml(t.mapel)} (${escapeHtml(t.namaGuru || 'Guru')})</option>`).join('');
@@ -98,7 +97,6 @@ async function loadTugasList() {
 
 let soalEsaiItems = [];
 
-// Inisialisasi editor soal esai
 function initSoalEsaiEditor(jumlahSoal = 1) {
     const container = document.getElementById('soalEsaiEditorContainer');
     if (!container) return;
@@ -115,7 +113,6 @@ function initSoalEsaiEditor(jumlahSoal = 1) {
     renderSoalEsaiEditor();
 }
 
-// Render editor soal esai
 function renderSoalEsaiEditor() {
     const container = document.getElementById('soalEsaiEditorContainer');
     if (!container) return;
@@ -130,10 +127,10 @@ function renderSoalEsaiEditor() {
             <div class="soal-esai-editor-header">
                 <span class="esai-soal-number">📝 Soal Esai ${idx + 1}</span>
                 <div class="soal-actions">
-                    <button onclick="moveSoalEsaiUp(${idx})" title="Pindah ke atas">⬆️</button>
-                    <button onclick="moveSoalEsaiDown(${idx})" title="Pindah ke bawah">⬇️</button>
-                    <button onclick="copySoalEsai(${idx})" title="Duplikat">📋</button>
-                    <button onclick="deleteSoalEsai(${idx})" title="Hapus">🗑️</button>
+                    <button onclick="moveSoalEsaiUp(${idx})">⬆️</button>
+                    <button onclick="moveSoalEsaiDown(${idx})">⬇️</button>
+                    <button onclick="copySoalEsai(${idx})">📋</button>
+                    <button onclick="deleteSoalEsai(${idx})">🗑️</button>
                 </div>
             </div>
             <textarea class="esai-question-input" rows="3" placeholder="Masukkan pertanyaan esai..." 
@@ -154,14 +151,12 @@ function renderSoalEsaiEditor() {
     `).join('');
 }
 
-// Update soal esai
 function updateSoalEsai(index, field, value) {
     if (soalEsaiItems[index]) {
         soalEsaiItems[index][field] = value;
     }
 }
 
-// Tambah soal esai baru
 function addSoalEsai() {
     soalEsaiItems.push({
         nomor: soalEsaiItems.length + 1,
@@ -172,7 +167,6 @@ function addSoalEsai() {
     renderSoalEsaiEditor();
 }
 
-// Hapus soal esai
 function deleteSoalEsai(index) {
     if (confirm('Hapus soal esai ini?')) {
         soalEsaiItems.splice(index, 1);
@@ -181,7 +175,6 @@ function deleteSoalEsai(index) {
     }
 }
 
-// Duplikat soal esai
 function copySoalEsai(index) {
     const copySoal = JSON.parse(JSON.stringify(soalEsaiItems[index]));
     copySoal.nomor = soalEsaiItems.length + 1;
@@ -189,7 +182,6 @@ function copySoalEsai(index) {
     renderSoalEsaiEditor();
 }
 
-// Pindah soal esai ke atas
 function moveSoalEsaiUp(index) {
     if (index > 0) {
         [soalEsaiItems[index - 1], soalEsaiItems[index]] = [soalEsaiItems[index], soalEsaiItems[index - 1]];
@@ -198,7 +190,6 @@ function moveSoalEsaiUp(index) {
     }
 }
 
-// Pindah soal esai ke bawah
 function moveSoalEsaiDown(index) {
     if (index < soalEsaiItems.length - 1) {
         [soalEsaiItems[index + 1], soalEsaiItems[index]] = [soalEsaiItems[index], soalEsaiItems[index + 1]];
@@ -207,7 +198,6 @@ function moveSoalEsaiDown(index) {
     }
 }
 
-// Clear semua soal esai
 function clearSoalEsai() {
     if (confirm('Hapus semua soal esai?')) {
         soalEsaiItems = [];
@@ -215,7 +205,6 @@ function clearSoalEsai() {
     }
 }
 
-// Validasi soal esai
 function validateSoalEsai() {
     let errors = [];
     
@@ -237,7 +226,6 @@ function validateSoalEsai() {
     return true;
 }
 
-// Preview soal esai
 function previewSoalEsai() {
     const modal = document.getElementById('previewModal');
     const body = document.getElementById('previewBody');
@@ -267,7 +255,6 @@ function previewSoalEsai() {
     modal.style.display = 'flex';
 }
 
-// Toggle jenis tugas (PG / Esai / Campuran)
 function toggleJenisTugas() {
     const jenis = document.getElementById('jenisTugas').value;
     const pgContainer = document.getElementById('pilihanGandaContainer');
@@ -280,106 +267,13 @@ function toggleJenisTugas() {
         pgContainer.style.display = 'none';
         esaiContainer.style.display = 'block';
         initSoalEsaiEditor(1);
-    } else { // campuran
+    } else {
         pgContainer.style.display = 'block';
         esaiContainer.style.display = 'block';
         if (soalEsaiItems.length === 0) initSoalEsaiEditor(1);
     }
 }
 
-// Update fungsi submit untuk mendukung esai
-// Cari dan ganti fungsi submit tugas yang ada dengan yang baru ini
-if (document.getElementById('tugasForm')) {
-    // Hapus event listener lama jika ada
-    const oldForm = document.getElementById('tugasForm');
-    const newForm = oldForm.cloneNode(true);
-    oldForm.parentNode.replaceChild(newForm, oldForm);
-    
-    newForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const jenisTugas = document.getElementById('jenisTugas').value;
-        
-        // Validasi berdasarkan jenis tugas
-        if (jenisTugas === 'pilihan_ganda' || jenisTugas === 'campuran') {
-            if (!validateSoal()) return;
-        }
-        
-        if (jenisTugas === 'esai' || jenisTugas === 'campuran') {
-            if (!validateSoalEsai()) return;
-        }
-        
-        const namaGuru = document.getElementById('namaGuru').value;
-        if (!namaGuru || namaGuru.trim() === '') {
-            alert('❌ Nama Guru harus diisi!');
-            return;
-        }
-        
-        // Konversi soal ke format text
-        let soalText = '';
-        let jumlahSoal = 0;
-        let soalDetail = {};
-        
-        if (jenisTugas === 'pilihan_ganda') {
-            soalText = convertSoalToText();
-            jumlahSoal = soalItems.length;
-            soalDetail = { tipe: 'pilihan_ganda', soal: soalItems };
-        } else if (jenisTugas === 'esai') {
-            soalText = convertSoalEsaiToText();
-            jumlahSoal = soalEsaiItems.length;
-            soalDetail = { tipe: 'esai', soal: soalEsaiItems };
-        } else {
-            // Campuran
-            const pgText = convertSoalToText();
-            const esaiText = convertSoalEsaiToText();
-            soalText = `${pgText}\n\n=== SOAL ESAI ===\n\n${esaiText}`;
-            jumlahSoal = soalItems.length + soalEsaiItems.length;
-            soalDetail = { 
-                tipe: 'campuran', 
-                pilihanGanda: soalItems, 
-                esai: soalEsaiItems 
-            };
-        }
-        
-        const tugasData = {
-            judul: document.getElementById('judul').value,
-            mapel: document.getElementById('mapel').value,
-            namaGuru: namaGuru.trim(),
-            deskripsi: document.getElementById('deskripsi').value,
-            waktu: parseInt(document.getElementById('waktu').value),
-            jumlahSoal: jumlahSoal,
-            jenisTugas: jenisTugas,
-            soal: soalText.split('\n\n'),
-            soalDetail: soalDetail
-        };
-        
-        try {
-            const response = await fetch('/api/tugas', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(tugasData)
-            });
-            
-            if (response.ok) {
-                alert(`✅ Tugas berhasil diupload!\n📝 Jenis: ${jenisTugas === 'pilihan_ganda' ? 'Pilihan Ganda' : jenisTugas === 'esai' ? 'Esai' : 'Campuran'}\n📊 Jumlah soal: ${jumlahSoal}`);
-                document.getElementById('tugasForm').reset();
-                initSoalEditor(1);
-                soalEsaiItems = [];
-                renderSoalEsaiEditor();
-                loadTugasList();
-                loadStats();
-                loadJawaban();
-            } else {
-                alert('❌ Gagal mengupload tugas');
-            }
-        } catch (error) {
-            console.error('Error uploading tugas:', error);
-            alert('❌ Gagal mengupload tugas');
-        }
-    });
-}
-
-// Konversi soal esai ke text
 function convertSoalEsaiToText() {
     return soalEsaiItems.map(soal => {
         let text = `[ESAI] ${soal.pertanyaan}`;
@@ -388,7 +282,6 @@ function convertSoalEsaiToText() {
         return text;
     }).join('\n\n');
 }
-
 
 // Load jawaban siswa
 async function loadJawaban() {
@@ -551,7 +444,7 @@ async function deletePengumuman(id) {
     }
 }
 
-// Helper function to escape HTML
+// Helper function
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -559,11 +452,10 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ==================== FITUR SOAL BARU DENGAN JAWABAN BENAR ====================
+// ==================== FITUR SOAL PILIHAN GANDA ====================
 
 let soalItems = [];
 
-// Inisialisasi editor soal
 function initSoalEditor(jumlahSoal = 1) {
     const container = document.getElementById('soalEditorContainer');
     if (!container) return;
@@ -581,7 +473,6 @@ function initSoalEditor(jumlahSoal = 1) {
     document.getElementById('jumlahSoal').value = jumlahSoal;
 }
 
-// Render editor soal dengan pilihan jawaban benar
 function renderSoalEditor() {
     const container = document.getElementById('soalEditorContainer');
     if (!container) return;
@@ -591,16 +482,15 @@ function renderSoalEditor() {
             <div class="soal-editor-header">
                 <span class="soal-number">Soal ${idx + 1}</span>
                 <div class="soal-actions">
-                    <button onclick="moveSoalUp(${idx})" title="Pindah ke atas">⬆️</button>
-                    <button onclick="moveSoalDown(${idx})" title="Pindah ke bawah">⬇️</button>
-                    <button onclick="copySoal(${idx})" title="Duplikat">📋</button>
-                    <button onclick="deleteSoal(${idx})" title="Hapus">🗑️</button>
+                    <button onclick="moveSoalUp(${idx})">⬆️</button>
+                    <button onclick="moveSoalDown(${idx})">⬇️</button>
+                    <button onclick="copySoal(${idx})">📋</button>
+                    <button onclick="deleteSoal(${idx})">🗑️</button>
                 </div>
             </div>
             <input type="text" class="soal-question-input" placeholder="Masukkan pertanyaan soal..." 
                    value="${escapeHtml(soal.pertanyaan)}" onchange="updateSoal(${idx}, 'pertanyaan', this.value)">
             
-            <!-- Pilihan Jawaban Benar -->
             <div class="jawaban-benar-container">
                 <label class="jawaban-benar-label">✅ Jawaban Benar:</label>
                 <div class="jawaban-benar-options">
@@ -615,9 +505,7 @@ function renderSoalEditor() {
                             </label>
                         `;
                     }).join('')}
-                    ${soal.options.length < 6 ? `
-                        <button type="button" class="btn-add-option-small" onclick="addOption(${idx})">+</button>
-                    ` : ''}
+                    <button type="button" class="btn-add-option-small" onclick="addOption(${idx})">+</button>
                 </div>
             </div>
             
@@ -631,7 +519,7 @@ function renderSoalEditor() {
                             <input type="text" class="option-input" placeholder="Jawaban ${letter}" 
                                    value="${escapeHtml(opt)}" onchange="updateSoalOption(${idx}, ${optIdx}, this.value)">
                             ${isCorrect ? '<span class="correct-badge">✓ Benar</span>' : ''}
-                            <button type="button" class="btn-remove-option" onclick="removeOption(${idx}, ${optIdx})" title="Hapus opsi">✗</button>
+                            <button type="button" class="btn-remove-option" onclick="removeOption(${idx}, ${optIdx})">✗</button>
                         </div>
                     `;
                 }).join('')}
@@ -643,7 +531,6 @@ function renderSoalEditor() {
     updateJumlahSoal();
 }
 
-// Update jumlah soal
 function updateJumlahSoal() {
     const jumlahSoalInput = document.getElementById('jumlahSoal');
     if (jumlahSoalInput) {
@@ -651,21 +538,18 @@ function updateJumlahSoal() {
     }
 }
 
-// Update soal
 function updateSoal(index, field, value) {
     if (soalItems[index]) {
         soalItems[index][field] = value;
     }
 }
 
-// Update option
 function updateSoalOption(soalIndex, optionIndex, value) {
     if (soalItems[soalIndex] && soalItems[soalIndex].options[optionIndex] !== undefined) {
         soalItems[soalIndex].options[optionIndex] = value;
     }
 }
 
-// Set jawaban benar untuk suatu soal
 function setJawabanBenar(soalIndex, jawaban) {
     if (soalItems[soalIndex]) {
         soalItems[soalIndex].jawabanBenar = jawaban;
@@ -673,7 +557,6 @@ function setJawabanBenar(soalIndex, jawaban) {
     }
 }
 
-// Tambah option baru
 function addOption(soalIndex) {
     if (soalItems[soalIndex]) {
         soalItems[soalIndex].options.push('');
@@ -681,7 +564,6 @@ function addOption(soalIndex) {
     }
 }
 
-// Hapus option
 function removeOption(soalIndex, optionIndex) {
     if (soalItems[soalIndex] && soalItems[soalIndex].options.length > 2) {
         soalItems[soalIndex].options.splice(optionIndex, 1);
@@ -698,7 +580,6 @@ function removeOption(soalIndex, optionIndex) {
     }
 }
 
-// Tambah soal baru
 function addSoal() {
     soalItems.push({
         nomor: soalItems.length + 1,
@@ -709,7 +590,6 @@ function addSoal() {
     renderSoalEditor();
 }
 
-// Hapus soal
 function deleteSoal(index) {
     if (confirm('Hapus soal ini?')) {
         soalItems.splice(index, 1);
@@ -718,7 +598,6 @@ function deleteSoal(index) {
     }
 }
 
-// Duplikat soal
 function copySoal(index) {
     const copySoal = JSON.parse(JSON.stringify(soalItems[index]));
     copySoal.nomor = soalItems.length + 1;
@@ -726,7 +605,6 @@ function copySoal(index) {
     renderSoalEditor();
 }
 
-// Pindah soal ke atas
 function moveSoalUp(index) {
     if (index > 0) {
         [soalItems[index - 1], soalItems[index]] = [soalItems[index], soalItems[index - 1]];
@@ -735,7 +613,6 @@ function moveSoalUp(index) {
     }
 }
 
-// Pindah soal ke bawah
 function moveSoalDown(index) {
     if (index < soalItems.length - 1) {
         [soalItems[index + 1], soalItems[index]] = [soalItems[index], soalItems[index + 1]];
@@ -744,14 +621,12 @@ function moveSoalDown(index) {
     }
 }
 
-// Clear semua soal
 function clearSoal() {
     if (confirm('Hapus semua soal?')) {
         initSoalEditor(1);
     }
 }
 
-// Validasi format soal (termasuk jawaban benar)
 function validateSoal() {
     let errors = [];
     
@@ -775,11 +650,10 @@ function validateSoal() {
         return false;
     }
     
-    alert('✅ Format soal valid! (Semua soal memiliki jawaban benar)');
+    alert('✅ Format soal valid!');
     return true;
 }
 
-// Preview soal (menampilkan jawaban benar dengan highlight)
 function previewSoal() {
     const modal = document.getElementById('previewModal');
     const body = document.getElementById('previewBody');
@@ -819,7 +693,6 @@ function closePreviewModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// Konversi soalItems ke format text untuk disimpan (dengan jawaban benar)
 function convertSoalToText() {
     return soalItems.map(soal => {
         let text = `${soal.pertanyaan}`;
@@ -834,77 +707,32 @@ function convertSoalToText() {
     }).join('\n\n');
 }
 
-// Load template soal (dengan jawaban benar preset)
-// Load template soal (dengan jawaban benar preset)
 function loadTemplate(template) {
     const templates = {
         matematika: [
-            { pertanyaan: "Hasil dari 2 + 2 adalah...", options: ["3", "4", "5", "6"], jawabanBenar: "B" },
-            { pertanyaan: "Akar kuadrat dari 144 adalah...", options: ["10", "11", "12", "13"], jawabanBenar: "C" },
-            { pertanyaan: "Berapa hasil dari 15 × 4?", options: ["50", "60", "70", "80"], jawabanBenar: "B" },
-            { pertanyaan: "Bilangan prima berikut ini adalah...", options: ["4", "6", "7", "9"], jawabanBenar: "C" },
-            { pertanyaan: "Hasil dari 100 ÷ 5 adalah...", options: ["15", "20", "25", "30"], jawabanBenar: "B" }
+            { pertanyaan: "Hasil dari 2 + 2 adalah...", options: ["3", "4", "5", "6"], jawabanBenar: "B" }
         ],
         ipa: [
-            { pertanyaan: "Organ pernapasan manusia adalah...", options: ["Jantung", "Paru-paru", "Lambung", "Hati"], jawabanBenar: "B" },
-            { pertanyaan: "Planet terdekat dengan matahari adalah...", options: ["Venus", "Bumi", "Mars", "Merkurius"], jawabanBenar: "D" },
-            { pertanyaan: "Proses pembuatan makanan pada tumbuhan disebut...", options: ["Fotosintesis", "Respirasi", "Transpirasi", "Fermentasi"], jawabanBenar: "A" }
+            { pertanyaan: "Organ pernapasan manusia adalah...", options: ["Jantung", "Paru-paru", "Lambung", "Hati"], jawabanBenar: "B" }
         ],
         bahasa: [
-            { pertanyaan: "Sinonim dari kata 'Cepat' adalah...", options: ["Lambat", "Cepat", "Pelan", "Perlahan"], jawabanBenar: "B" },
-            { pertanyaan: "Kata baku yang benar adalah...", options: ["Aktifitas", "Aktivitas", "Aktipitas", "Aktifitas"], jawabanBenar: "B" },
-            { pertanyaan: "Amanat dalam cerita disebut juga...", options: ["Tema", "Alur", "Pesan Moral", "Latar"], jawabanBenar: "C" }
+            { pertanyaan: "Sinonim dari kata 'Cepat' adalah...", options: ["Lambat", "Cepat", "Pelan", "Perlahan"], jawabanBenar: "B" }
         ],
         inggris: [
-            { pertanyaan: "What is the meaning of 'Book'?", options: ["Buku", "Pensil", "Meja", "Kursi"], jawabanBenar: "A" },
-            { pertanyaan: "How do you say 'Selamat pagi' in English?", options: ["Good Night", "Good Evening", "Good Afternoon", "Good Morning"], jawabanBenar: "D" },
-            { pertanyaan: "The opposite of 'big' is...", options: ["Large", "Small", "Tall", "Wide"], jawabanBenar: "B" }
+            { pertanyaan: "What is the meaning of 'Book'?", options: ["Buku", "Pensil", "Meja", "Kursi"], jawabanBenar: "A" }
         ],
-        // Template Web Programming
         webprog: [
-            { pertanyaan: "Apa kepanjangan dari HTML?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyper Transfer Markup Language", "Home Tool Markup Language"], jawabanBenar: "A" },
-            { pertanyaan: "CSS digunakan untuk...", options: ["Mengatur struktur website", "Mengatur tampilan website", "Membuat database", "Mengelola server"], jawabanBenar: "B" },
-            { pertanyaan: "JavaScript adalah bahasa pemrograman yang berjalan di...", options: ["Server", "Database", "Browser", "Compiler"], jawabanBenar: "C" },
-            { pertanyaan: "Framework JavaScript yang populer adalah...", options: ["Laravel", "Django", "React", "Spring"], jawabanBenar: "C" },
-            { pertanyaan: "Apa fungsi dari tag <a> dalam HTML?", options: ["Membuat gambar", "Membuat link", "Membuat paragraf", "Membuat heading"], jawabanBenar: "B" }
+            { pertanyaan: "Apa kepanjangan dari HTML?", options: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyper Transfer Markup Language", "Home Tool Markup Language"], jawabanBenar: "A" }
         ],
-        // Template PPKN
         ppkn: [
-            { pertanyaan: "Pancasila sebagai dasar negara terdiri dari... sila", options: ["3", "4", "5", "6"], jawabanBenar: "C" },
-            { pertanyaan: "Sila pertama Pancasila adalah...", options: ["Kemanusiaan", "Persatuan", "Kerakyatan", "Ketuhanan"], jawabanBenar: "D" },
-            { pertanyaan: "Bendera negara Indonesia adalah...", options: ["Merah Putih", "Merah Biru", "Putih Hitam", "Kuning Merah"], jawabanBenar: "A" },
-            { pertanyaan: "Lambang negara Indonesia adalah...", options: ["Garuda", "Burung Hantu", "Elang", "Rajawali"], jawabanBenar: "A" },
-            { pertanyaan: "Semboyan bangsa Indonesia adalah...", options: ["Bhinneka Tunggal Ika", "Bersatu Kita Teguh", "Merdeka atau Mati", "Sekali Layar Terkembang"], jawabanBenar: "A" }
+            { pertanyaan: "Pancasila sebagai dasar negara terdiri dari... sila", options: ["3", "4", "5", "6"], jawabanBenar: "C" }
         ],
-        // Template Biologi
         biologi: [
-            { pertanyaan: "Organ pernapasan manusia adalah...", options: ["Jantung", "Paru-paru", "Lambung", "Hati"], jawabanBenar: "B" },
-            { pertanyaan: "Proses pembuatan makanan pada tumbuhan disebut...", options: ["Fotosintesis", "Respirasi", "Transpirasi", "Fermentasi"], jawabanBenar: "A" },
-            { pertanyaan: "Sel tumbuhan memiliki dinding sel yang terbuat dari...", options: ["Protein", "Lipid", "Selulosa", "Karbohidrat"], jawabanBenar: "C" },
-            { pertanyaan: "Alat gerak aktif pada manusia adalah...", options: ["Tulang", "Otot", "Sendi", "Ligamen"], jawabanBenar: "B" },
-            { pertanyaan: "Sistem peredaran darah manusia disebut juga...", options: ["Sistem respirasi", "Sistem sirkulasi", "Sistem ekskresi", "Sistem pencernaan"], jawabanBenar: "B" }
+            { pertanyaan: "Organ pernapasan manusia adalah...", options: ["Jantung", "Paru-paru", "Lambung", "Hati"], jawabanBenar: "B" }
         ]
     };
     
-    // Mapping untuk template ID ke nama template yang benar
-    const templateMap = {
-        'matematika': 'matematika',
-        'ipa': 'ipa',
-        'bahasa': 'bahasa',
-        'inggris': 'inggris',
-        'webprog': 'webprog',
-        'ppkn': 'ppkn',
-        'biologi': 'biologi'
-    };
-    
-    const templateKey = templateMap[template] || 'matematika';
-    const selectedTemplate = templates[templateKey];
-    
-    if (!selectedTemplate) {
-        alert('❌ Template tidak ditemukan!');
-        return;
-    }
-    
+    const selectedTemplate = templates[template] || templates.matematika;
     soalItems = selectedTemplate.map((item, idx) => ({
         nomor: idx + 1,
         pertanyaan: item.pertanyaan,
@@ -912,11 +740,94 @@ function loadTemplate(template) {
         jawabanBenar: item.jawabanBenar || 'A'
     }));
     renderSoalEditor();
-    alert(`✅ Template ${template} berhasil dimuat! ${soalItems.length} soal siap digunakan.`);
+    alert(`✅ Template ${template} berhasil dimuat!`);
 }
+
+// Submit tugas
+if (document.getElementById('tugasForm')) {
+    const oldForm = document.getElementById('tugasForm');
+    const newForm = oldForm.cloneNode(true);
+    oldForm.parentNode.replaceChild(newForm, oldForm);
+    
+    newForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const jenisTugas = document.getElementById('jenisTugas').value;
+        
+        if (jenisTugas === 'pilihan_ganda' || jenisTugas === 'campuran') {
+            if (!validateSoal()) return;
+        }
+        
+        if (jenisTugas === 'esai' || jenisTugas === 'campuran') {
+            if (!validateSoalEsai()) return;
+        }
+        
+        const namaGuru = document.getElementById('namaGuru').value;
+        if (!namaGuru || namaGuru.trim() === '') {
+            alert('❌ Nama Guru harus diisi!');
+            return;
+        }
+        
+        let soalText = '';
+        let jumlahSoal = 0;
+        let soalDetail = {};
+        
+        if (jenisTugas === 'pilihan_ganda') {
+            soalText = convertSoalToText();
+            jumlahSoal = soalItems.length;
+            soalDetail = { tipe: 'pilihan_ganda', soal: soalItems };
+        } else if (jenisTugas === 'esai') {
+            soalText = convertSoalEsaiToText();
+            jumlahSoal = soalEsaiItems.length;
+            soalDetail = { tipe: 'esai', soal: soalEsaiItems };
+        } else {
+            const pgText = convertSoalToText();
+            const esaiText = convertSoalEsaiToText();
+            soalText = `${pgText}\n\n=== SOAL ESAI ===\n\n${esaiText}`;
+            jumlahSoal = soalItems.length + soalEsaiItems.length;
+            soalDetail = { tipe: 'campuran', pilihanGanda: soalItems, esai: soalEsaiItems };
+        }
+        
+        const tugasData = {
+            judul: document.getElementById('judul').value,
+            mapel: document.getElementById('mapel').value,
+            namaGuru: namaGuru.trim(),
+            deskripsi: document.getElementById('deskripsi').value,
+            waktu: parseInt(document.getElementById('waktu').value),
+            jumlahSoal: jumlahSoal,
+            jenisTugas: jenisTugas,
+            soal: soalText.split('\n\n'),
+            soalDetail: soalDetail
+        };
+        
+        try {
+            const response = await fetch('/api/tugas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tugasData)
+            });
+            
+            if (response.ok) {
+                alert(`✅ Tugas berhasil diupload!\n📝 Jumlah soal: ${jumlahSoal}`);
+                document.getElementById('tugasForm').reset();
+                initSoalEditor(1);
+                soalEsaiItems = [];
+                renderSoalEsaiEditor();
+                loadTugasList();
+                loadStats();
+                loadJawaban();
+            } else {
+                alert('❌ Gagal mengupload tugas');
+            }
+        } catch (error) {
+            console.error('Error uploading tugas:', error);
+            alert('❌ Gagal mengupload tugas');
+        }
+    });
+}
+
 // ==================== JADWAL UJIAN ====================
 
-// Load tugas untuk dropdown jadwal
 async function loadTugasForJadwal() {
     try {
         const response = await fetch('/api/tugas');
@@ -925,14 +836,13 @@ async function loadTugasForJadwal() {
         
         if (select) {
             select.innerHTML = '<option value="">Pilih Tugas</option>' + 
-                tugas.map(t => `<option value="${t.id}">${escapeHtml(t.judul)} - ${escapeHtml(t.mapel)} (${escapeHtml(t.namaGuru || 'Guru')})</option>`).join('');
+                tugas.map(t => `<option value="${t.id}">${escapeHtml(t.judul)} - ${escapeHtml(t.mapel)}</option>`).join('');
         }
     } catch (error) {
         console.error('Error loading tugas:', error);
     }
 }
 
-// Load daftar jadwal
 async function loadJadwalList() {
     try {
         const response = await fetch('/api/jadwal');
@@ -958,7 +868,6 @@ async function loadJadwalList() {
                 <div class="jadwal-item">
                     <div class="jadwal-info">
                         <h4>${escapeHtml(tugasItem?.judul || 'Tugas tidak ditemukan')}</h4>
-                        <p>📖 ${escapeHtml(tugasItem?.mapel || '-')} | 👨‍🏫 ${escapeHtml(tugasItem?.namaGuru || '-')}</p>
                         <p>📅 ${j.tanggal} | ⏰ ${j.jamMulai} - ${j.jamSelesai}</p>
                         <p>⏱️ Durasi: ${j.durasi} menit</p>
                         <span class="jadwal-status ${statusClass}">${statusText}</span>
@@ -975,7 +884,6 @@ async function loadJadwalList() {
     }
 }
 
-// Submit jadwal
 document.getElementById('jadwalForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -1014,7 +922,6 @@ document.getElementById('jadwalForm')?.addEventListener('submit', async (e) => {
     }
 });
 
-// Delete jadwal
 async function deleteJadwal(id) {
     if (confirm('Yakin ingin menghapus jadwal ini?')) {
         try {
@@ -1024,6 +931,115 @@ async function deleteJadwal(id) {
         } catch (error) {
             console.error('Error:', error);
             alert('❌ Gagal menghapus jadwal');
+        }
+    }
+}
+
+// ==================== ZOOM ROOM ====================
+
+// Load zoom rooms for admin
+async function loadZoomRoomsAdmin() {
+    try {
+        const response = await fetch('/api/rooms');
+        const rooms = await response.json();
+        
+        const listContainer = document.getElementById('zoomRoomsList');
+        if (!listContainer) return;
+        
+        if (rooms.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #999;">Belum ada room zoom yang dibuat</p>';
+            return;
+        }
+        
+        listContainer.innerHTML = rooms.map(room => `
+            <div class="zoom-room-item">
+                <div>
+                    <strong>${escapeHtml(room.title)}</strong><br>
+                    <small>📅 ${room.date} | ⏰ ${room.startTime} - ${room.endTime}</small><br>
+                    <small>🔑 Kode: <strong>${room.roomId}</strong></small><br>
+                    <small>👥 Peserta: ${room.participants?.length || 0}</small>
+                </div>
+                <button class="delete-btn" onclick="deleteZoomRoom(${room.id})">Hapus</button>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading zoom rooms:', error);
+    }
+}
+
+// Create zoom room
+document.getElementById('zoomForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const meetingDate = document.getElementById('meetingDate').value;
+    const meetingStart = document.getElementById('meetingStart').value;
+    const meetingEnd = document.getElementById('meetingEnd').value;
+    
+    // Validasi tanggal tidak boleh kosong
+    if (!meetingDate || !meetingStart || !meetingEnd) {
+        alert('❌ Tanggal dan jam harus diisi!');
+        return;
+    }
+    
+    // Validasi tanggal tidak boleh kurang dari hari ini
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(meetingDate);
+    
+    if (selectedDate < today) {
+        alert('❌ Tanggal meeting tidak boleh kurang dari hari ini!');
+        return;
+    }
+    
+    const roomData = {
+        title: document.getElementById('meetingTitle').value,
+        description: document.getElementById('meetingDesc').value,
+        date: meetingDate,
+        startTime: meetingStart,
+        endTime: meetingEnd,
+        mapel: document.getElementById('meetingMapel').value,
+        createdBy: localStorage.getItem('guruUsername') || 'Admin'
+    };
+    
+    console.log('📤 Creating room with data:', roomData);
+    
+    try {
+        const response = await fetch('/api/rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(roomData)
+        });
+        
+        const data = await response.json();
+        console.log('📥 Response:', data);
+        
+        if (data.success) {
+            alert(`✅ Room Zoom berhasil dibuat!\n🔑 Kode Room: ${data.room.roomId}\n📅 Tanggal: ${meetingDate}\n⏰ Jam: ${meetingStart} - ${meetingEnd}`);
+            document.getElementById('zoomForm').reset();
+            loadZoomRoomsAdmin();
+            // Refresh tampilan di halaman siswa jika ada fungsi loadZoomRooms
+            if (typeof loadZoomRooms === 'function') {
+                loadZoomRooms();
+            }
+        } else {
+            alert('❌ Gagal membuat room: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Gagal membuat room: ' + error.message);
+    }
+});
+
+// Delete zoom room
+async function deleteZoomRoom(id) {
+    if (confirm('Yakin ingin menghapus room zoom ini?')) {
+        try {
+            await fetch(`/api/rooms/${id}`, { method: 'DELETE' });
+            alert('✅ Room zoom berhasil dihapus');
+            loadZoomRoomsAdmin();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Gagal menghapus room zoom');
         }
     }
 }
@@ -1059,6 +1075,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTugasForJadwal();
     loadJadwalList();
     initSoalEditor(1);
-    initSoalEsaiEditor(1); 
-    document.getElementById('jenisTugas').value = 'pilihan_ganda';
+    initSoalEsaiEditor(1);
+    loadZoomRoomsAdmin();
+    
+    const jenisTugasSelect = document.getElementById('jenisTugas');
+    if (jenisTugasSelect) {
+        jenisTugasSelect.value = 'pilihan_ganda';
+    }
 });

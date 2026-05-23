@@ -58,7 +58,6 @@ async function loadTugasWithSchedule() {
     const tugasGrid = document.getElementById('tugasGrid');
     if (!tugasGrid) return;
     
-    // Tampilkan loading state
     tugasGrid.innerHTML = '<div class="loading-spinner">📚 Memuat daftar tugas...</div>';
     
     try {
@@ -71,40 +70,22 @@ async function loadTugasWithSchedule() {
         const jadwal = await jadwalRes.json();
         const now = new Date();
         
-        console.log(`📋 Total tugas: ${semuaTugas.length}, Total jadwal: ${jadwal.length}`);
-        
-        // Filter tugas yang jadwalnya aktif
         const tugasWithSchedule = semuaTugas.map(tugas => {
             const schedule = jadwal.find(j => j.tugasId === tugas.id);
-            if (!schedule) {
-                // Tugas tanpa jadwal tetap ditampilkan
-                return { ...tugas, isAvailable: true, schedule: null };
-            }
+            if (!schedule) return { ...tugas, isAvailable: true, schedule: null };
             
             const examStart = new Date(`${schedule.tanggal}T${schedule.jamMulai}`);
             const examEnd = new Date(`${schedule.tanggal}T${schedule.jamSelesai}`);
             const isAvailable = now >= examStart && now <= examEnd && schedule.status === 'active';
             
-            console.log(`Tugas ${tugas.judul}: isAvailable=${isAvailable}, status=${schedule.status}`);
-            
-            return {
-                ...tugas,
-                isAvailable,
-                schedule,
-                examStart,
-                examEnd
-            };
+            return { ...tugas, isAvailable, schedule, examStart, examEnd };
         });
         
-        // Tampilkan hanya tugas yang tersedia
         const availableTugas = tugasWithSchedule.filter(t => t.isAvailable);
-        console.log(`✅ Tugas tersedia: ${availableTugas.length} dari ${semuaTugas.length}`);
-        
         displayTugas(availableTugas);
         
     } catch (error) {
-        console.error('❌ Error loading tugas with schedule:', error);
-        // Fallback ke load biasa
+        console.error('Error loading tugas with schedule:', error);
         loadTugas();
     }
 }
@@ -112,28 +93,16 @@ async function loadTugasWithSchedule() {
 // Load tugas biasa (tanpa filter jadwal) - fallback
 async function loadTugas() {
     const tugasGrid = document.getElementById('tugasGrid');
-    const totalTugasSpan = document.getElementById('totalTugas');
-    
     if (!tugasGrid) return;
     
-    // Tampilkan loading state
     tugasGrid.innerHTML = '<div class="loading-spinner">📚 Memuat daftar tugas...</div>';
     
     try {
-        console.log('🔄 Fetching tugas from API...');
         const response = await fetch('/api/tugas');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const tugas = await response.json();
-        console.log(`✅ Tugas loaded: ${tugas.length} items`, tugas);
-        
         displayTugas(tugas);
-        
     } catch (error) {
-        console.error('❌ Error loading tugas:', error);
+        console.error('Error loading tugas:', error);
         tugasGrid.innerHTML = `
             <div class="error-message">
                 <div class="error-icon">⚠️</div>
@@ -154,7 +123,6 @@ async function checkUpcomingExam() {
         const jadwal = await response.json();
         const now = new Date();
         
-        // Cari jadwal yang akan datang
         const upcoming = jadwal.filter(j => {
             const examDate = new Date(`${j.tanggal}T${j.jamMulai}`);
             return examDate > now && j.status === 'upcoming';
@@ -164,7 +132,6 @@ async function checkUpcomingExam() {
         
         if (upcoming.length > 0 && upcoming[0]) {
             const nextExam = upcoming[0];
-            // Ambil data tugas untuk mendapatkan judul
             const tugasRes = await fetch('/api/tugas');
             const semuaTugas = await tugasRes.json();
             const tugasItem = semuaTugas.find(t => t.id == nextExam.tugasId);
@@ -172,7 +139,7 @@ async function checkUpcomingExam() {
             const examDateTime = new Date(`${nextExam.tanggal}T${nextExam.jamMulai}`);
             const timeDiff = examDateTime - now;
             
-            if (timeDiff > 0 && timeDiff <= 7 * 24 * 60 * 60 * 1000) { // Hanya dalam 7 hari
+            if (timeDiff > 0 && timeDiff <= 7 * 24 * 60 * 60 * 1000) {
                 countdownSection.style.display = 'block';
                 startCountdown(examDateTime, {
                     judul: tugasItem?.judul || 'Ujian',
@@ -194,7 +161,6 @@ async function checkUpcomingExam() {
 function startCountdown(targetDate, examData) {
     const clockElement = document.getElementById('countdownClock');
     const infoElement = document.getElementById('countdownInfo');
-    
     if (!clockElement) return;
     
     function updateCountdown() {
@@ -204,9 +170,7 @@ function startCountdown(targetDate, examData) {
         if (diff <= 0) {
             clockElement.innerHTML = "🚀 Ujian Dimulai!";
             infoElement.innerHTML = `Ujian ${examData.judul} sudah dimulai. Silakan refresh halaman.`;
-            setTimeout(() => {
-                location.reload();
-            }, 5000);
+            setTimeout(() => location.reload(), 5000);
             return;
         }
         
@@ -227,22 +191,15 @@ function startCountdown(targetDate, examData) {
     setInterval(updateCountdown, 1000);
 }
 
-// Load latest pengumuman untuk ditampilkan di beranda
+// Load latest pengumuman
 async function loadLatestPengumuman() {
     const container = document.getElementById('latestPengumuman');
     if (!container) return;
     
     try {
-        console.log('🔄 Fetching announcements...');
         const response = await fetch('/api/pengumuman');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const pengumuman = await response.json();
         const latest = pengumuman.slice(0, 3);
-        console.log(`✅ Announcements loaded: ${pengumuman.length} items`);
         
         if (latest.length === 0) {
             container.style.display = 'none';
@@ -269,7 +226,7 @@ async function loadLatestPengumuman() {
             </div>
         `;
     } catch (error) {
-        console.error('❌ Error loading announcements:', error);
+        console.error('Error loading announcements:', error);
         container.style.display = 'none';
     }
 }
@@ -281,19 +238,198 @@ async function loadActiveStudents() {
     
     try {
         const response = await fetch('/api/jawaban/all');
+        const jawaban = await response.json();
+        const uniqueStudents = new Set(jawaban.map(j => j.nis));
+        totalSiswaSpan.textContent = uniqueStudents.size;
+    } catch (error) {
+        console.error('Error loading students:', error);
+        totalSiswaSpan.textContent = '0';
+    }
+}
+
+// ==================== ZOOM ROOMS FUNCTIONS ====================
+
+// Load zoom rooms for students (UPDATED - shows all active rooms with status)
+async function loadZoomRooms() {
+    try {
+        console.log('🔄 Loading zoom rooms from API...');
+        const response = await fetch('/api/rooms');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const jawaban = await response.json();
-        const uniqueStudents = new Set(jawaban.map(j => j.nis));
-        totalSiswaSpan.textContent = uniqueStudents.size;
-        console.log(`✅ Active students: ${uniqueStudents.size}`);
+        const rooms = await response.json();
+        console.log('📋 All rooms from API:', rooms);
+        
+        const now = new Date();
+        console.log('📅 Current date/time:', now.toString());
+        
+        // Filter hanya room yang aktif
+        const activeRooms = rooms.filter(room => {
+            // Cek apakah room aktif
+            if (!room.isActive) {
+                console.log(`❌ Room ${room.title} - not active`);
+                return false;
+            }
+            
+            // Buat tanggal meeting dari data room
+            let meetingDateTime;
+            try {
+                // Format: room.date = "2026-05-23", room.startTime = "16:00"
+                const dateTimeString = `${room.date}T${room.startTime}:00`;
+                meetingDateTime = new Date(dateTimeString);
+                
+                console.log(`📌 Room: ${room.title}`);
+                console.log(`   - Date: ${room.date}`);
+                console.log(`   - Start time: ${room.startTime}`);
+                console.log(`   - Full datetime: ${dateTimeString}`);
+                console.log(`   - Parsed: ${meetingDateTime.toString()}`);
+                console.log(`   - Current: ${now.toString()}`);
+                
+                // Hitung selisih waktu dalam menit
+                const diffMs = meetingDateTime - now;
+                const diffMins = Math.floor(diffMs / 60000);
+                console.log(`   - Selisih: ${diffMins} menit`);
+                
+                // Tampilkan semua room aktif (tanpa filter waktu untuk testing)
+                const shouldDisplay = true;
+                console.log(`   - Should display: ${shouldDisplay}`);
+                
+                return shouldDisplay;
+                
+            } catch (e) {
+                console.error(`Error parsing date for room ${room.title}:`, e);
+                return false;
+            }
+        });
+        
+        console.log(`✅ Active rooms found: ${activeRooms.length}`);
+        
+        const grid = document.getElementById('zoomRoomsGrid');
+        if (!grid) {
+            console.warn('zoomRoomsGrid element not found');
+            return;
+        }
+        
+        if (activeRooms.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-icon">🎥</div>
+                    <h3>Tidak Ada Zoom Meeting Aktif</h3>
+                    <p>Saat ini belum ada zoom meeting yang dijadwalkan.</p>
+                    <button class="btn-primary" onclick="loadZoomRooms()" style="margin-top: 1rem;">
+                        🔄 Refresh
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        grid.innerHTML = activeRooms.map(room => {
+            // Hitung status meeting
+            const meetingDateTime = new Date(`${room.date}T${room.startTime}:00`);
+            const now = new Date();
+            const diffMs = meetingDateTime - now;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            let statusBadge = '';
+            let statusClass = '';
+            
+            if (diffMins > 0) {
+                statusBadge = `<span class="status-badge upcoming">⏰ Akan datang (${diffMins} menit lagi)</span>`;
+                statusClass = 'upcoming';
+            } else if (diffMins <= 0 && diffMins > -120) {
+                statusBadge = `<span class="status-badge active">🔴 LIVE - Sedang Berlangsung</span>`;
+                statusClass = 'active';
+            } else {
+                statusBadge = `<span class="status-badge ended">✅ Telah Selesai</span>`;
+                statusClass = 'ended';
+            }
+            
+            return `
+            <div class="zoom-room-card ${statusClass}" onclick="showJoinModal('${room.roomId}')">
+                <h3>${escapeHtml(room.title)}</h3>
+                <p>${escapeHtml(room.description || 'Tidak ada deskripsi')}</p>
+                ${statusBadge}
+                <div class="room-code">🔑 Kode: <strong>${room.roomId}</strong></div>
+                <div class="room-time">📅 ${room.date} | ⏰ ${room.startTime} - ${room.endTime}</div>
+                <div class="room-mapel">📖 ${room.mapel || 'Umum'}</div>
+                <div class="room-participants">👥 ${room.participants?.length || 0} peserta</div>
+                <button class="btn-join" onclick="event.stopPropagation(); showJoinModal('${room.roomId}')">🎥 Join Meeting</button>
+            </div>
+        `}).join('');
+        
+        console.log(`✅ ${activeRooms.length} zoom rooms displayed`);
         
     } catch (error) {
-        console.error('❌ Error loading students:', error);
-        totalSiswaSpan.textContent = '0';
+        console.error('❌ Error loading zoom rooms:', error);
+        const grid = document.getElementById('zoomRoomsGrid');
+        if (grid) {
+            grid.innerHTML = `
+                <div class="error-message" style="grid-column: 1/-1;">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Gagal Memuat Zoom Meeting</h3>
+                    <p>Terjadi kesalahan saat menghubungi server.<br>Error: ${error.message}</p>
+                    <button class="btn-primary" onclick="loadZoomRooms()" style="margin-top: 1rem;">
+                        🔄 Coba Lagi
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+// Show join modal
+function showJoinModal(roomId) {
+    const modal = document.getElementById('joinZoomModal');
+    const roomCodeInput = document.getElementById('roomCode');
+    if (roomCodeInput) roomCodeInput.value = roomId;
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeJoinZoomModal() {
+    const modal = document.getElementById('joinZoomModal');
+    if (modal) modal.style.display = 'none';
+    const roomCode = document.getElementById('roomCode');
+    const participantName = document.getElementById('participantName');
+    if (roomCode) roomCode.value = '';
+    if (participantName) participantName.value = '';
+}
+
+// Join room
+async function joinRoom() {
+    const roomCode = document.getElementById('roomCode')?.value.toUpperCase();
+    const participantName = document.getElementById('participantName')?.value;
+    
+    if (!roomCode || !participantName) {
+        alert('❌ Masukkan kode room dan nama Anda!');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/rooms/join/${roomCode}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: participantName })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            alert(data.error || 'Gagal bergabung ke room');
+            return;
+        }
+        
+        closeJoinZoomModal();
+        alert(`✅ Berhasil bergabung ke room: ${data.room.title}\n\nSilakan tunggu guru memulai meeting.`);
+        
+        // Refresh daftar room
+        loadZoomRooms();
+        
+    } catch (error) {
+        console.error('Error joining room:', error);
+        alert('❌ Gagal bergabung ke room');
     }
 }
 
@@ -310,23 +446,16 @@ let selectedTugasId = null;
 function openFormModal(tugasId) {
     selectedTugasId = tugasId;
     const modal = document.getElementById('formModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        console.log(`📝 Opening form for tugas ID: ${tugasId}`);
-    }
+    if (modal) modal.style.display = 'flex';
 }
 
 function closeModal() {
     const modal = document.getElementById('formModal');
-    if (modal) {
-        modal.style.display = 'none';
-        console.log('📝 Modal closed');
-    }
+    if (modal) modal.style.display = 'none';
     const form = document.getElementById('studentForm');
     if (form) form.reset();
 }
 
-// Handle student form submission
 document.getElementById('studentForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -346,51 +475,42 @@ document.getElementById('studentForm')?.addEventListener('submit', async (e) => 
         tugasId: selectedTugasId
     };
     
-    console.log('📝 Student data saved:', studentData);
     localStorage.setItem('studentData', JSON.stringify(studentData));
-    
-    // Redirect ke halaman ujian
     window.location.href = `/ujian.html?id=${selectedTugasId}`;
 });
 
 function scrollToTugas() {
     const tugasSection = document.getElementById('tugasSection');
-    if (tugasSection) {
-        tugasSection.scrollIntoView({ behavior: 'smooth' });
-        console.log('📜 Scrolled to tugas section');
-    }
+    if (tugasSection) tugasSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// Cek koneksi API saat halaman dimuat
 async function checkAPI() {
     try {
-        console.log('🔍 Checking API connection...');
         const response = await fetch('/api/tugas');
-        if (response.ok) {
-            console.log('✅ API connection OK');
-        } else {
-            console.warn('⚠️ API responded with status:', response.status);
-        }
+        if (response.ok) console.log('✅ API connection OK');
+        else console.warn('⚠️ API responded with status:', response.status);
     } catch (error) {
         console.error('❌ API connection failed:', error);
     }
 }
 
-// Initialize
+// ==================== INITIALIZE ====================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Ruang Ujian App Started');
     createParticles();
     checkAPI();
-    checkUpcomingExam(); // Cek jadwal ujian terdekat
-    loadTugasWithSchedule(); // Load tugas dengan filter jadwal
+    checkUpcomingExam();
+    loadTugasWithSchedule();
     loadActiveStudents();
     loadLatestPengumuman();
+    loadZoomRooms(); // Memuat zoom rooms dengan status badge
 });
 
 // Close modal when clicking outside
 window.onclick = (event) => {
     const modal = document.getElementById('formModal');
-    if (event.target === modal) {
-        closeModal();
-    }
+    if (event.target === modal) closeModal();
+    
+    const joinModal = document.getElementById('joinZoomModal');
+    if (event.target === joinModal) closeJoinZoomModal();
 };

@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1779527928047,
+    "roomId": "F9HC7M",
+    "title": "belajar html",
+    "description": "belajar html",
+    "date": "2026-05-23",
+    "startTime": "16:18",
+    "endTime": "16:23",
+    "mapel": "web progamming",
+    "createdBy": "admin",
+    "createdAt": "2026-05-23T09:18:48.047Z",
+    "participants": [],
+    "isActive": true
+  },
+  {
+    "id": 1779527928054,
+    "roomId": "VOIFYA",
+    "title": "belajar html",
+    "description": "belajar html",
+    "date": "2026-05-23",
+    "startTime": "16:18",
+    "endTime": "16:23",
+    "mapel": "web progamming",
+    "createdBy": "admin",
+    "createdAt": "2026-05-23T09:18:48.054Z",
+    "participants": [],
+    "isActive": true
+  }
+]
